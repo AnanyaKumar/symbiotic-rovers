@@ -1,0 +1,15 @@
+2
+# Rover locations
+0 0
+0 0
+# Uncertainties
+M 0.05 # 5% error in odometry (corresponds to 1 std-dev)
+A 5 # 5 degrees error in angles
+D 0.05 # 5% error in distance measurement
+
+# Start input trace
+M 1 5 30
+M 2 10 0
+D 5.6
+C 3 2 0 9
+
