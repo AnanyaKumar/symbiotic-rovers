@@ -65,14 +65,37 @@ class Grid:
             heading_probability = util.probability_normal(0, heading_uncertainty, heading_diff)
             probability += self.pdf[xold_idx][yold_idx] * dist_probability * heading_probability
         new_grid.pdf[xnew_idx][ynew_idx] = probability
-        print xnew_idx, ynew_idx, new_grid.pdf[xnew_idx][ynew_idx]
+    return new_grid
+
+  def recenter():
+    pass
+
+  @staticmethod
+  def update_distances_single_rover(grid0, grid1, distance, distance_uncertainty):
+    new_grid = Grid(grid0.center_x, grid0.center_y)
+    for x0_idx in range(2 * new_grid.num_cells_right + 1):
+      for y0_idx in range(2 * new_grid.num_cells_up + 1):
+        probability = 0
+        (x0, y0) = grid0.get_location_from_indices(x0_idx, y0_idx)
+        for x1_idx in range(2 * grid1.num_cells_right + 1):
+          for y1_idx in range(2 * grid1.num_cells_up + 1):
+            (x1, y1) = grid1.get_location_from_indices(x1_idx, y1_idx)
+            dist = util.distance(x0, y0, x1, y1)
+            prob_measure_given_data = util.probability_normal(distance, 
+              distance_uncertainty, dist)
+            probability += (prob_measure_given_data * grid0.pdf[x0_idx][y0_idx] *
+              grid1.pdf[x1_idx][y1_idx])
+        new_grid.pdf[x0_idx][y0_idx] = probability
     return new_grid
 
   @staticmethod
   def update_distances(grid0, grid1, distances, distance_uncertainties):
     """returns new_grid0, new_grid1"""
-    pass
-
+    distance = (distances[0] + distances[1]) / 2
+    distance_uncertainty = (distance_uncertainties[0] + distance_uncertainties[1]) / 2
+    new_grid0 = Grid.update_distances_single_rover(grid0, grid1, distance, distance_uncertainty)
+    new_grid1 = Grid.update_distances_single_rover(grid1, grid0, distance, distance_uncertainty)
+    return (new_grid0, new_grid1)
 
 class GridLocalize(Localize_Interface):
 
@@ -104,6 +127,9 @@ if __name__ == "__main__":
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
   g.measure_movement([1,1],[0,0])
+  print g.get_pose_estimate(0)
+  print g.get_pose_estimate(1)
+  g.measure_distance([1.4, 1.4])
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
 
