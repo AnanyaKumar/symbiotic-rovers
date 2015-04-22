@@ -1,8 +1,8 @@
 2 # Number of rovers
 
 # Initial rover locations
-0 0 # initial x, y coordinates of rover 0
-0 0 # initial x, y coordinates of rover 1
+0.0 0.0 # initial x, y coordinates of rover 0
+4.0 0.0 # initial x, y coordinates of rover 1
 
 # Uncertainties
 O 0.05 0.05 # Odometry measurements have variance of 0.05m (if the rovers move 1m)
@@ -11,7 +11,10 @@ D 0.05 0.05 # Distance measurements have a variance of 0.05m (when they're 1m ap
 
 # Start input trace
 
-M 1 5 30 # Rover 1 moves 5m at a heading of 30 degrees (clockwise from north)
-M 2 10 0 # Rover 2 moves 10m to the north
-D 5.6 5.7 # Rover 1 measures distance of 5.6m to rover 2, rover 2 measures distance of 5.7m
-C 3 2 0 9 # The correct positions of rovers 1 and 2 respectively
+M 3.0 90.0 6.0 90.0 # Rover 1 moves 5m at a heading of 30 degrees (clockwise from north) Rover 2 moves 10m to the north
+D 5.1 4.9 # Rover 1 measures distance of 5.6m to rover 2, rover 2 measures distance of 5.7m
+C 0.0 3.0 4.0 6.0 # The correct positions of rovers 1 and 2 respectively
+
+M 2.0 90.0 2 90.0
+D 5.2 5.1
+C 0.0 5.0 4.0 8.0
