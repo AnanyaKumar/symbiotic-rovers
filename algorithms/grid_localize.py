@@ -8,8 +8,8 @@ class Grid:
 
   center_x = 0
   center_y = 0
-  delta_x = 0.1
-  delta_y = 0.1
+  delta_x = 0.05
+  delta_y = 0.05
   num_cells_right = 10
   num_cells_up = 10
   pdf = [[]]
@@ -65,6 +65,7 @@ class Grid:
             heading_probability = util.probability_normal(0, heading_uncertainty, heading_diff)
             probability += self.pdf[xold_idx][yold_idx] * dist_probability * heading_probability
         new_grid.pdf[xnew_idx][ynew_idx] = probability
+        # print xnew_idx, ynew_idx, probability
     return new_grid
 
   def recenter():
@@ -123,13 +124,13 @@ class GridLocalize(Localize_Interface):
     return self.grids[rover_idx].get_estimated_location()
 
 if __name__ == "__main__":
-  g = GridLocalize([[0,1.34], [1,2.1]], [0.1, 0.1], [0.5, 0.5], [0.1, 0.1])
+  g = GridLocalize([[0,0], [4,0]], [0.05, 0.05], [0.09, 0.09], [0.05, 0.05])
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
-  g.measure_movement([1,1],[0,0])
+  g.measure_movement([3,6],[math.pi/2,math.pi/2])
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
-  g.measure_distance([1.4, 1.4])
-  print g.get_pose_estimate(0)
-  print g.get_pose_estimate(1)
+  # g.measure_distance([1.4, 1.4])
+  # print g.get_pose_estimate(0)
+  # print g.get_pose_estimate(1)
 

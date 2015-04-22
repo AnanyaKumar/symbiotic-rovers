@@ -7,7 +7,7 @@ def distance(x0, y0, x1, y1):
 def heading(x0, y0, x1, y1):
   x_disp = x1 - x0
   y_disp = y1 - y0
-  return math.atan2(y_disp, x_disp)
+  return math.atan2(x_disp, y_disp) # our coordinate system isn't the mathematical system
 
 def probability_normal(mean, variance, value):
   sigma = math.sqrt(variance)
