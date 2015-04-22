@@ -28,7 +28,7 @@ class ExtendedKalmanFilter():
                       [0, 0, 0, 0],
                       [0, 0, 0, 0]]
 
-    def move(self, distances, directions):
+    def measure_movement(self, distances, directions):
         # Calculate control vector
         self.u = [distances[0], directions[0], distances[1], directions[1]]
 
@@ -114,6 +114,15 @@ class ExtendedKalmanFilter():
 
         self.x = x_t_hat
         self.sigma = sigma_t_hat
+
+    def get_pose_estimate(self, rover_idx):
+        x = np.array(self.x)
+        if(rover_idx == 0):
+            return [x[0, 0], x[1, 0]]
+        elif(rover_idx == 1):
+            return [x[2, 0], x[3, 0]]
+        else:
+            print "fail"
 
 # if __name__ == "__main__":
 #     x = ExtendedKalmanFilter([[0, 0], [4, 0]], [0, 0], [0, 0], [0, 0])
