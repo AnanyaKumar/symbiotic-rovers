@@ -117,4 +117,7 @@ class Parser():
 if __name__ == "__main__":
     x = Parser()
     import sys
+    if(len(sys.argv) != 3):
+        print "python parser.py <tracefile> <0 = EKF/1 = GD>"
+        sys.exit()
     x.read_trace(sys.argv[1], int(sys.argv[2]))

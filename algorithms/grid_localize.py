@@ -58,7 +58,7 @@ class Grid:
           for yold_idx in range(2 * self.num_cells_up + 1):
             (xold, yold) = self.get_location_from_indices(xold_idx, yold_idx)
             dist = util.distance(xold, yold, xnew, ynew)
-            dist_probability = util.probability_normal(distance_moved, motion_uncertainty, 
+            dist_probability = util.probability_normal(distance_moved, motion_uncertainty,
               dist)
             current_heading = util.heading(xold, yold, xnew, ynew)
             heading_diff = util.smallest_angle_difference(current_heading, heading)
@@ -76,7 +76,7 @@ class Grid:
 
 class GridLocalize(Localize_Interface):
 
-  def __init__(self, start_positions, motion_uncertainties, angle_uncertainties, 
+  def __init__(self, start_positions, motion_uncertainties, angle_uncertainties,
     distance_uncertainties):
     self.grids = []
     self.grids.append(Grid(start_positions[0][0], start_positions[0][1]))
@@ -87,18 +87,18 @@ class GridLocalize(Localize_Interface):
 
   def measure_movement(self, distances_moved, directions):
     for i in range(2):
-      self.grids[i] = self.grids[i].move(distances_moved[i], 
-        distances_moved[i] * self.motion_uncertainties[i], 
+      self.grids[i] = self.grids[i].move(distances_moved[i],
+        distances_moved[i] * self.motion_uncertainties[i],
         directions[i], self.angle_uncertainties[i])
 
   def measure_distance(self, distances):
     dist_uncertainties = [self.distance_uncertainties[i] * distances[i] for i in range(2)]
-    (self.grids[0], self.grids[1]) = Grid.update_distances(self.grids[0], self.grids[1], 
+    (self.grids[0], self.grids[1]) = Grid.update_distances(self.grids[0], self.grids[1],
       distances, self.distance_uncertainties)
 
   def get_pose_estimate(self, rover_idx):
     return self.grids[rover_idx].get_estimated_location()
-    
+
 if __name__ == "__main__":
   g = GridLocalize([[0,1.34], [1,2.1]], [0.1, 0.1], [0.5, 0.5], [0.1, 0.1])
   print g.get_pose_estimate(0)
