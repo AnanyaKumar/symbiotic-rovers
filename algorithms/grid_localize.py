@@ -25,11 +25,11 @@ class Grid:
     self.pdf = [[0 for i in range(2 * num_cells_up + 1)] for j in range(2 * num_cells_right + 1)]
     self.set(0, 0, 1)
 
-  def get(self, x, y):
-    return self.pdf[self.num_cells_right + x][self.num_cells_up + y]
+  def get(self, xidx_from_center, yidx_from_center):
+    return self.pdf[self.num_cells_right + xidx_from_center][self.num_cells_up + yidx_from_center]
 
-  def set(self, x, y, value):
-    self.pdf[self.num_cells_right + x][self.num_cells_up + y] = value
+  def set(self, xidx_from_center, yidx_from_center, value):
+    self.pdf[self.num_cells_right + xidx_from_center][self.num_cells_up + yidx_from_center] = value
 
   def get_location_from_indices(self, xidx, yidx):
     return [self.center_x + self.delta_x * (xidx - self.num_cells_right),
