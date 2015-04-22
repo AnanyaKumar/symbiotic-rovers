@@ -19,6 +19,7 @@ class Parser():
             num = 0
 
             init_xy = [[0, 0], [0, 0]]
+            static_xy = [[0, 0], [0, 0]]
             m_var = [0, 0]
             a_var = [0, 0]
             d_var = [0, 0]
@@ -42,6 +43,7 @@ class Parser():
                     x1 = float(x[0])
                     y1 = float(x[1])
                     init_xy = [[x0, y0], [x1, y1]]
+                    static_xy = [[x0, y0], [x1, y1]]
                     read_locs = True
                     i = i + 2
                     continue
@@ -100,8 +102,15 @@ class Parser():
 
                     print "Rover 0 abs. pose %d: (%f, %f)" % (counter, x0, y0)
                     print "Rover 0 est. pose %d: (%f, %f)" % (counter, pred_x0, pred_y0)
+                    pd0 = math.sqrt((pred_x0 - x0) ** 2 + (pred_y0 - y0) ** 2)
+                    d0 = math.sqrt((x0 - static_xy[0][0]) ** 2 + (y0 - static_xy[0][1]) ** 2)
+                    print "Rover 0 error: %f%%" % (abs(pd0) / d0)
                     print "Rover 1 abs. pose %d: (%f, %f)" % (counter, x1, y1)
                     print "Rover 1 est. pose %d: (%f, %f)" % (counter, pred_x1, pred_y1)
+                    pd1 = math.sqrt((pred_x1 - x1) ** 2 + (pred_y1 - y1) ** 2)
+                    d1 = math.sqrt((x1 - static_xy[1][0]) ** 2 + (y1 - static_xy[1][1]) ** 2)
+
+                    print "Rover 1 error: %f%%" % (abs(pd1) / d1)
                     print "\n"
 
                     counter = counter + 1
