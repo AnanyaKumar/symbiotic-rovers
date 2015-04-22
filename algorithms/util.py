@@ -1,13 +1,19 @@
 import math
 from numpy.random import normal
 
+def overrides(interface_class):
+    def overrider(method):
+        assert(method.__name__ in dir(interface_class))
+        return method
+    return overrider
+
 def distance(x0, y0, x1, y1):
   return math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
 
 def heading(x0, y0, x1, y1):
   x_disp = x1 - x0
   y_disp = y1 - y0
-  return math.atan2(x_disp, y_disp) # our coordinate system isn't the mathematical system
+  return math.atan2(y_disp, x_disp) # our coordinate system isn't the mathematical system
 
 def probability_normal(mean, variance, value):
   sigma = math.sqrt(variance)

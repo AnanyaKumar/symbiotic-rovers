@@ -1,6 +1,9 @@
-import ekf
+
 import math
-import grid_localize
+
+from ekf import ExtendedKalmanFilter
+from grid_localize import GridLocalize
+from odometry_localize import OdometryLocalize
 
 class Parser():
     def read_trace(self, file, type):
@@ -56,10 +59,12 @@ class Parser():
 
                 if(read_num and read_uncertainties == 3 and read_locs):
                     break
-            if(type == 0):
-                op = ekf.ExtendedKalmanFilter(init_xy, m_var, a_var, d_var)
+            if (type == 0):
+                op = OdometryLocalize(init_xy, m_var, a_var, d_var)
             elif(type == 1):
-                op = grid_localize.GridLocalize(init_xy, m_var, a_var, d_var)
+                op = ExtendedKalmanFilter(init_xy, m_var, a_var, d_var)
+            elif(type == 2):
+                op = GridLocalize(init_xy, m_var, a_var, d_var)
             else:
                 print "Unknown filter type"
                 import sys
@@ -88,24 +93,15 @@ class Parser():
                     op.measure_distance([d0, d1])
 
                 elif x[0] == 'C':
-                    x0 = float(x[1])
-                    y0 = float(x[2])
+                    (x0, y0) = (float(x[1]), float(x[2]))
+                    (x1, y1) = (float(x[3]), float(x[4]))
+                    (pred_x0, pred_y0) = op.get_pose_estimate(0)
+                    (pred_x1, pred_y1) = op.get_pose_estimate(1)
 
-                    x1 = float(x[3])
-                    y1 = float(x[4])
-
-                    print "Rover 0 abs. pose %d:" % counter
-                    print [x0, y0]
-
-                    print "Rover 0 est. pose %d:" % counter
-                    print op.get_pose_estimate(0)
-
-                    print "Rover 1 abs. pose %d:" % counter
-                    print [x1, y1]
-
-                    print "Rover 1 est. pose %d:" % counter
-                    print op.get_pose_estimate(1)
-
+                    print "Rover 0 abs. pose %d: (%f, %f)" % (counter, x0, y0)
+                    print "Rover 0 est. pose %d: (%f, %f)" % (counter, pred_x0, pred_y0)
+                    print "Rover 1 abs. pose %d: (%f, %f)" % (counter, x1, y1)
+                    print "Rover 1 est. pose %d: (%f, %f)" % (counter, pred_x1, pred_y1)
                     print "\n"
 
                     counter = counter + 1

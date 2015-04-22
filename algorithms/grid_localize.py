@@ -6,15 +6,7 @@ import util
 
 class Grid:
 
-  center_x = 0
-  center_y = 0
-  delta_x = 0.05
-  delta_y = 0.05
-  num_cells_right = 10
-  num_cells_up = 10
-  pdf = [[]]
-
-  def __init__(self, center_x=0, center_y=0, delta_x=0.1, delta_y=0.1, num_cells_right=10,
+  def __init__(self, center_x=0, center_y=0, delta_x=0.05, delta_y=0.05, num_cells_right=10,
     num_cells_up=10):
     self.center_x = center_x
     self.center_y = center_y
@@ -22,6 +14,8 @@ class Grid:
     self.delta_y = delta_y
     self.num_cells_right = num_cells_right
     self.num_cells_up = num_cells_up
+    self.num_cells_x = 2 * num_cells_right + 1
+    self.num_cells_y = 2 * num_cells_up + 1
     self.pdf = [[0 for i in range(2 * num_cells_up + 1)] for j in range(2 * num_cells_right + 1)]
     self.set(0, 0, 1)
 
@@ -47,15 +41,15 @@ class Grid:
 
   def move(self, distance_moved, motion_uncertainty, heading, heading_uncertainty):
     """returns new_grid"""
-    x_moved = distance_moved * math.sin(heading)
-    y_moved = distance_moved * math.cos(heading)
+    x_moved = distance_moved * math.cos(heading)
+    y_moved = distance_moved * math.sin(heading)
     new_grid = Grid(self.center_x + x_moved, self.center_y + y_moved)
-    for xnew_idx in range(2 * new_grid.num_cells_right + 1):
-      for ynew_idx in range(2 * new_grid.num_cells_up + 1):
+    for xnew_idx in range(new_grid.num_cells_x):
+      for ynew_idx in range(new_grid.num_cells_y):
         probability = 0
         (xnew, ynew) = new_grid.get_location_from_indices(xnew_idx, ynew_idx)
-        for xold_idx in range(2 * self.num_cells_right + 1):
-          for yold_idx in range(2 * self.num_cells_up + 1):
+        for xold_idx in range(self.num_cells_x):
+          for yold_idx in range(self.num_cells_y):
             (xold, yold) = self.get_location_from_indices(xold_idx, yold_idx)
             dist = util.distance(xold, yold, xnew, ynew)
             dist_probability = util.probability_normal(distance_moved, motion_uncertainty,
@@ -65,7 +59,6 @@ class Grid:
             heading_probability = util.probability_normal(0, heading_uncertainty, heading_diff)
             probability += self.pdf[xold_idx][yold_idx] * dist_probability * heading_probability
         new_grid.pdf[xnew_idx][ynew_idx] = probability
-        # print xnew_idx, ynew_idx, probability
     return new_grid
 
   def recenter():
@@ -74,17 +67,17 @@ class Grid:
   @staticmethod
   def update_distances_single_rover(grid0, grid1, distance, distance_uncertainty):
     new_grid = Grid(grid0.center_x, grid0.center_y)
-    for x0_idx in range(2 * new_grid.num_cells_right + 1):
-      for y0_idx in range(2 * new_grid.num_cells_up + 1):
+    for x0_idx in range(new_grid.num_cells_x):
+      for y0_idx in range(new_grid.num_cells_y):
         probability = 0
         (x0, y0) = grid0.get_location_from_indices(x0_idx, y0_idx)
-        for x1_idx in range(2 * grid1.num_cells_right + 1):
-          for y1_idx in range(2 * grid1.num_cells_up + 1):
+        for x1_idx in range(grid1.num_cells_x):
+          for y1_idx in range(grid1.num_cells_y):
             (x1, y1) = grid1.get_location_from_indices(x1_idx, y1_idx)
             dist = util.distance(x0, y0, x1, y1)
-            prob_measure_given_data = util.probability_normal(distance, 
+            prob_measured_given_data = util.probability_normal(distance, 
               distance_uncertainty, dist)
-            probability += (prob_measure_given_data * grid0.pdf[x0_idx][y0_idx] *
+            probability += (prob_measured_given_data * grid0.pdf[x0_idx][y0_idx] *
               grid1.pdf[x1_idx][y1_idx])
         new_grid.pdf[x0_idx][y0_idx] = probability
     return new_grid
@@ -100,6 +93,7 @@ class Grid:
 
 class GridLocalize(Localize_Interface):
 
+  @util.overrides(Localize_Interface)
   def __init__(self, start_positions, motion_uncertainties, angle_uncertainties,
     distance_uncertainties):
     self.grids = []
@@ -109,28 +103,31 @@ class GridLocalize(Localize_Interface):
     self.angle_uncertainties = angle_uncertainties
     self.distance_uncertainties = distance_uncertainties
 
+  @util.overrides(Localize_Interface)
   def measure_movement(self, distances_moved, directions):
     for i in range(2):
       self.grids[i] = self.grids[i].move(distances_moved[i],
         distances_moved[i] * self.motion_uncertainties[i],
         directions[i], self.angle_uncertainties[i])
 
+  @util.overrides(Localize_Interface)
   def measure_distance(self, distances):
     dist_uncertainties = [self.distance_uncertainties[i] * distances[i] for i in range(2)]
     (self.grids[0], self.grids[1]) = Grid.update_distances(self.grids[0], self.grids[1],
       distances, self.distance_uncertainties)
 
+  @util.overrides(Localize_Interface)
   def get_pose_estimate(self, rover_idx):
     return self.grids[rover_idx].get_estimated_location()
 
 if __name__ == "__main__":
-  g = GridLocalize([[0,0], [4,0]], [0.05, 0.05], [0.09, 0.09], [0.05, 0.05])
+  g = GridLocalize([[0,0], [0,0]], [0.5, 0.5], [0.1, 0.1], [0.0001, 0.0001])
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
-  g.measure_movement([3,6],[math.pi/2,math.pi/2])
+  g.measure_movement([3,6],[0,0])
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
-  # g.measure_distance([1.4, 1.4])
-  # print g.get_pose_estimate(0)
-  # print g.get_pose_estimate(1)
+  g.measure_distance([4, 4])
+  print g.get_pose_estimate(0)
+  print g.get_pose_estimate(1)
 
