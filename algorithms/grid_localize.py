@@ -119,15 +119,3 @@ class GridLocalize(Localize_Interface):
   @util.overrides(Localize_Interface)
   def get_pose_estimate(self, rover_idx):
     return self.grids[rover_idx].get_estimated_location()
-
-if __name__ == "__main__":
-  g = GridLocalize([[0,0], [0,0]], [0.5, 0.5], [0.1, 0.1], [0.0001, 0.0001])
-  print g.get_pose_estimate(0)
-  print g.get_pose_estimate(1)
-  g.measure_movement([3,6],[0,0])
-  print g.get_pose_estimate(0)
-  print g.get_pose_estimate(1)
-  g.measure_distance([4, 4])
-  print g.get_pose_estimate(0)
-  print g.get_pose_estimate(1)
-

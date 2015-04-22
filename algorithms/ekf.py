@@ -118,15 +118,14 @@ class ExtendedKalmanFilter(Localize_Interface):
         sigma_t_hat = np.mat(np.identity(4) - np.mat(K_t) * np.mat(H_t)) *\
                       np.mat(sigma_t)
 
-        self.x = x_t_hat
+        self.x = np.transpose(x_t_hat).tolist()[0]
         self.sigma = sigma_t_hat
 
     @util.overrides(Localize_Interface)
     def get_pose_estimate(self, rover_idx):
-        x = np.array(self.x)
         if(rover_idx == 0):
-            return [x[0, 0], x[1, 0]]
+            return [self.x[0], self.x[1]]
         elif(rover_idx == 1):
-            return [x[2, 0], x[3, 0]]
+            return [self.x[2], self.x[3]]
         else:
             print "fail"

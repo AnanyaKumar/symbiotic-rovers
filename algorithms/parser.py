@@ -1,5 +1,6 @@
 
 import math
+import sys
 
 from ekf import ExtendedKalmanFilter
 from grid_localize import GridLocalize
@@ -67,7 +68,6 @@ class Parser():
                 op = GridLocalize(init_xy, m_var, a_var, d_var)
             else:
                 print "Unknown filter type"
-                import sys
                 sys.exit()
 
             counter = 0
@@ -112,5 +112,7 @@ class Parser():
 
 if __name__ == "__main__":
     x = Parser()
-    import sys
+    if(len(sys.argv) != 3):
+        print "python parser.py <tracefile> <0 = EKF/1 = GL>"
+        sys.exit()
     x.read_trace(sys.argv[1], int(sys.argv[2]))
