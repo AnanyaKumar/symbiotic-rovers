@@ -20,6 +20,13 @@ class Parser():
     r1_gt_pts_x = []
     r1_gt_pts_y = []
 
+    err0 = 0
+    err1 = 0
+
+    def __init__(self):
+        self.err0 = 0
+        self.err1 = 0
+
     def plot_points(self, r0x, r0y, r0xe, r0ye, r1x, r1y, r1xe, r1ye):
         # Make array of colors
         # colors = cm.Greys(np.linspace(0, 1, len(xarray)))
@@ -42,7 +49,7 @@ class Parser():
 
         plt.show()
 
-    def read_trace(self, file, type):
+    def read_trace(self, file, type, verb, plot):
         with open(file) as f:
             op = None
             s = f.readlines()
@@ -155,26 +162,30 @@ class Parser():
                     (x1, y1) = (float(x[3]), float(x[4]))
                     (pred_x0, pred_y0) = op.get_pose_estimate(0)
                     (pred_x1, pred_y1) = op.get_pose_estimate(1)
-
-                    print "Rover 0 abs. pose %d: (%f, %f)" % (counter, x0, y0)
-                    print "Rover 0 est. pose %d: (%f, %f)" % (counter, pred_x0, pred_y0)
+                    if verb:
+                        print "Rover 0 abs. pose %d: (%f, %f)" % (counter, x0, y0)
+                        print "Rover 0 est. pose %d: (%f, %f)" % (counter, pred_x0, pred_y0)
                     pd0 = math.sqrt((pred_x0 - x0) ** 2 + (pred_y0 - y0) ** 2)
                     d0 = math.sqrt((x0 - static_xy[0][0]) ** 2 + (y0 - static_xy[0][1]) ** 2)
-                    print "Rover 0 error: %f%%" % (100.0 * (abs(pd0) / d0))
+                    self.err0 = (100.0 * (abs(pd0) / d0))
+                    if verb:
+                        print "Rover 0 error: %f%%" % (100.0 * (abs(pd0) / d0))
 
                     self.r0_gt_pts_x.extend([x0])
                     self.r0_gt_pts_y.extend([y0])
                     self.r0_est_pts_x.extend([pred_x0])
                     self.r0_est_pts_y.extend([pred_y0])
 
-
-                    print "Rover 1 abs. pose %d: (%f, %f)" % (counter, x1, y1)
-                    print "Rover 1 est. pose %d: (%f, %f)" % (counter, pred_x1, pred_y1)
+                    if verb:
+                        print "Rover 1 abs. pose %d: (%f, %f)" % (counter, x1, y1)
+                        print "Rover 1 est. pose %d: (%f, %f)" % (counter, pred_x1, pred_y1)
                     pd1 = math.sqrt((pred_x1 - x1) ** 2 + (pred_y1 - y1) ** 2)
                     d1 = math.sqrt((x1 - static_xy[1][0]) ** 2 + (y1 - static_xy[1][1]) ** 2)
+                    self.err1 = (100.0 * (abs(pd1) / d1))
 
-                    print "Rover 1 error: %f%%" % (100.0 * (abs(pd1) / d1))
-                    print "\n"
+                    if verb:
+                        print "Rover 1 error: %f%%" % (100.0 * (abs(pd1) / d1))
+                        print "\n"
 
                     self.r1_gt_pts_x.extend([x1])
                     self.r1_gt_pts_y.extend([y1])
@@ -186,13 +197,15 @@ class Parser():
                     print "Invalid trace file"
 
                 i = i + 1
-        print self.r0_gt_pts_x
-        print self.r0_gt_pts_y
-        self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
+        if verb:
+            print self.r0_gt_pts_x
+            print self.r0_gt_pts_y
+        if plot:
+            self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
 
 if __name__ == "__main__":
     x = Parser()
-    if(len(sys.argv) != 3):
-        print "python parser.py <tracefile> <0 = EKF/1 = GL>"
+    if(len(sys.argv) != 5):
+        print "python parser.py <tracefile> <0 = Odom / 1 = EKF / 2 = Grid> <verbose> <plot>"
         sys.exit()
-    x.read_trace(sys.argv[1], int(sys.argv[2]))
+    x.read_trace(sys.argv[1], int(sys.argv[2]), bool(sys.argv[3]), bool(sys.argv[4]))

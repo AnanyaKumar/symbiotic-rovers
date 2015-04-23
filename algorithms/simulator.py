@@ -2,6 +2,7 @@ import sys
 import math
 import numpy as np
 import random
+
 class Simulator():
     X_INIT = 0
     Y_INIT = 0
@@ -15,7 +16,7 @@ class Simulator():
         self.D_INIT = MEAN_DIST
 
     def generate_path(self, trace_index, num_points, motion_uncertainties, angle_uncertainties, distance_uncertainties):
-        f = open('trace' + str(trace_index), 'w')
+        f = open('traces/trace' + str(trace_index), 'w')
 
         f.write("%d # Number of rovers\n\n" % 2)
 
