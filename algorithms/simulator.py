@@ -78,7 +78,7 @@ class Simulator():
         f.close()
 if __name__ == "__main__":
     x = Simulator(10, 10, 90, 15)
-    if(len(sys.argv) != 3):
+    if(len(sys.argv) != 3 or sys.argv.contains("-h")):
         print "python simulator.py <trace_number> <number of points>"
         sys.exit()
     x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.02, 0.02], [10.0, 10.0], [0.01, 0.01])

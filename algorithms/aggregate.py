@@ -29,4 +29,7 @@ class Aggregate:
         print "Average EKF error: Rover 0:%f Rover 1:%f" % (ekf_sum_0 / num_iterations, ekf_sum_1 / num_iterations)
 if __name__ == "__main__":
     x = Aggregate()
+    if(len(sys.argv) != 4 or sys.argv.contains("-h")):
+        print "python aggregate.py <num_points> <num_iterations> <1 = gen new / 0 = use old>"
+        sys.exit()
     x.run(int(sys.argv[1]), int(sys.argv[2]), bool(sys.argv[3]))

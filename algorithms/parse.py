@@ -205,7 +205,7 @@ class Parser():
 
 if __name__ == "__main__":
     x = Parser()
-    if(len(sys.argv) != 5):
-        print "python parser.py <tracefile> <0 = Odom / 1 = EKF / 2 = Grid> <verbose> <plot>"
+    if(len(sys.argv) != 5 or sys.argv.contains("-h")):
+        print "python parser.py <tracefile> <0 = Odom / 1 = EKF / 2 = Grid> <1 = verbose> <1 = plot / 0 = no plot>"
         sys.exit()
     x.read_trace(sys.argv[1], int(sys.argv[2]), bool(sys.argv[3]), bool(sys.argv[4]))
