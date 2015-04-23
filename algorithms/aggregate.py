@@ -2,14 +2,13 @@ import sys
 import parse
 import simulator
 class Aggregate:
-    def run(self, num_points, num_iterations, generate):
-        if generate:
-            x = simulator.Simulator(10, 10, 180, 15)
-            for i in xrange(num_iterations):
-                x.generate_path(i, num_points,
-                                [0.01, 0.01],
-                                [5.0, 5.0],
-                                [0.05, 0.05])
+    def run(self, num_points, num_iterations):
+        x = simulator.Simulator(10, 10, 180, 15)
+        for i in xrange(num_iterations):
+            x.generate_path(i, num_points,
+                            [0.01, 0.01],
+                            [5.0, 5.0],
+                            [0.005, 0.005])
 
         o_sum_0 = 0
         ekf_sum_0 = 0
@@ -29,7 +28,7 @@ class Aggregate:
         print "Average EKF error: Rover 0:%f Rover 1:%f" % (ekf_sum_0 / num_iterations, ekf_sum_1 / num_iterations)
 if __name__ == "__main__":
     x = Aggregate()
-    if("-h" in sys.argv or len(sys.argv) != 4):
-        print "python aggregate.py <num_points> <num_iterations> <1 = gen new / 0 = use old>"
+    if("-h" in sys.argv or len(sys.argv) != 3):
+        print "python aggregate.py <num_points> <num_iterations>"
         sys.exit()
-    x.run(int(sys.argv[1]), int(sys.argv[2]), bool(sys.argv[3]))
+    x.run(int(sys.argv[1]), int(sys.argv[2]))
