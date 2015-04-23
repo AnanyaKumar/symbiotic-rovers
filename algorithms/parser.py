@@ -1,4 +1,3 @@
-
 import math
 import sys
 
@@ -6,7 +5,43 @@ from ekf import ExtendedKalmanFilter
 from grid_localize import GridLocalize
 from odometry_localize import OdometryLocalize
 
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 class Parser():
+    r0_est_pts_x = []
+    r0_est_pts_y = []
+    r0_gt_pts_x = []
+    r0_gt_pts_y = []
+
+    r1_est_pts_x = []
+    r1_est_pts_y = []
+    r1_gt_pts_x = []
+    r1_gt_pts_y = []
+
+    def plot_points(self, r0x, r0y, r0xe, r0ye, r1x, r1y, r1xe, r1ye):
+        # Make array of colors
+        # colors = cm.Greys(np.linspace(0, 1, len(xarray)))
+        # # Plot graph
+        # for i in range(len(xarray)):
+        #     plt.scatter(xarray[i], yarray[i], c=colors[i], s=100)
+
+        # # Make array of colors
+        # colors = cm.GnBu(np.linspace(0, 1, len(a)))
+        # # Plot graph
+        # for i in range(len(a)):
+        #     plt.scatter(a[i], b[i], c=colors[i], s=100)
+        # plt.show()
+
+        plt.plot(r0x, r0y, 'ob-')
+        plt.plot(r0xe, r0ye, 'xc-')
+
+        plt.plot(r1x, r1y, 'or-')
+        plt.plot(r1xe, r1ye, 'xm-')
+
+        plt.show()
+
     def read_trace(self, file, type):
         with open(file) as f:
             op = None
@@ -23,6 +58,16 @@ class Parser():
             m_var = [0, 0]
             a_var = [0, 0]
             d_var = [0, 0]
+
+            self.r0_est_pts_x = []
+            self.r0_est_pts_y = []
+            self.r0_gt_pts_x = []
+            self.r0_gt_pts_y = []
+
+            self.r1_est_pts_x = []
+            self.r1_est_pts_y = []
+            self.r1_gt_pts_x = []
+            self.r1_gt_pts_y = []
 
             while (i < len(s)):
                 if(len(s[i]) <= 1 or s[i][0] == '#'):
@@ -44,6 +89,17 @@ class Parser():
                     y1 = float(x[1])
                     init_xy = [[x0, y0], [x1, y1]]
                     static_xy = [[x0, y0], [x1, y1]]
+
+                    self.r0_gt_pts_x.extend([x0])
+                    self.r0_gt_pts_y.extend([y0])
+                    self.r0_est_pts_x.extend([x0])
+                    self.r0_est_pts_y.extend([y0])
+
+                    self.r1_gt_pts_x.extend([x1])
+                    self.r1_gt_pts_y.extend([y1])
+                    self.r1_est_pts_x.extend([x1])
+                    self.r1_est_pts_y.extend([y1])
+
                     read_locs = True
                     i = i + 2
                     continue
@@ -104,20 +160,35 @@ class Parser():
                     print "Rover 0 est. pose %d: (%f, %f)" % (counter, pred_x0, pred_y0)
                     pd0 = math.sqrt((pred_x0 - x0) ** 2 + (pred_y0 - y0) ** 2)
                     d0 = math.sqrt((x0 - static_xy[0][0]) ** 2 + (y0 - static_xy[0][1]) ** 2)
-                    print "Rover 0 error: %f%%" % (abs(pd0) / d0)
+                    print "Rover 0 error: %f%%" % (100.0 * (abs(pd0) / d0))
+
+                    self.r0_gt_pts_x.extend([x0])
+                    self.r0_gt_pts_y.extend([y0])
+                    self.r0_est_pts_x.extend([pred_x0])
+                    self.r0_est_pts_y.extend([pred_y0])
+
+
                     print "Rover 1 abs. pose %d: (%f, %f)" % (counter, x1, y1)
                     print "Rover 1 est. pose %d: (%f, %f)" % (counter, pred_x1, pred_y1)
                     pd1 = math.sqrt((pred_x1 - x1) ** 2 + (pred_y1 - y1) ** 2)
                     d1 = math.sqrt((x1 - static_xy[1][0]) ** 2 + (y1 - static_xy[1][1]) ** 2)
 
-                    print "Rover 1 error: %f%%" % (abs(pd1) / d1)
+                    print "Rover 1 error: %f%%" % (100.0 * (abs(pd1) / d1))
                     print "\n"
+
+                    self.r1_gt_pts_x.extend([x1])
+                    self.r1_gt_pts_y.extend([y1])
+                    self.r1_est_pts_x.extend([pred_x1])
+                    self.r1_est_pts_y.extend([pred_y1])
 
                     counter = counter + 1
                 else:
                     print "Invalid trace file"
 
                 i = i + 1
+        print self.r0_gt_pts_x
+        print self.r0_gt_pts_y
+        self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
 
 if __name__ == "__main__":
     x = Parser()

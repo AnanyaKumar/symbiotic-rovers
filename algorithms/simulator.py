@@ -50,10 +50,10 @@ class Simulator():
             gt_x0 = x0 + d1 * math.cos(math.radians(angle1))
             gt_y0 = y0 + d1 * math.sin(math.radians(angle1))
 
-            gt_x1 = x1 + d1 * math.cos(math.radians(angle2))
-            gt_y1 = y1 + d1 * math.sin(math.radians(angle2))
+            gt_x1 = x1 + d2 * math.cos(math.radians(angle2))
+            gt_y1 = y1 + d2 * math.sin(math.radians(angle2))
 
-            gt_d = math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2)
+            gt_d = math.sqrt((gt_x0 - gt_x1) ** 2 + (gt_y0 - gt_y1) ** 2)
 
             d1_err = np.random.normal(d1, d1 * motion_uncertainties[0])
             d2_err = np.random.normal(d2, d2 * motion_uncertainties[1])
@@ -76,5 +76,8 @@ class Simulator():
 
         f.close()
 if __name__ == "__main__":
-    x = Simulator(10, 10, 60, 15)
+    x = Simulator(10, 10, 90, 15)
+    if(len(sys.argv) != 3):
+        print "python simulator.py <trace_number> <number of points>"
+        sys.exit()
     x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.02, 0.02], [10.0, 10.0], [0.01, 0.01])
