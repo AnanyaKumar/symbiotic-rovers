@@ -1,2 +1,8 @@
 *.pyc
 trace*
+CMake*
+*.out
+*build/*
+*archive/*
+*.so
+*.o
