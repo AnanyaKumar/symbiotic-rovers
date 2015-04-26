@@ -28,19 +28,6 @@ class Parser():
         self.err1 = 0
 
     def plot_points(self, r0x, r0y, r0xe, r0ye, r1x, r1y, r1xe, r1ye):
-        # Make array of colors
-        # colors = cm.Greys(np.linspace(0, 1, len(xarray)))
-        # # Plot graph
-        # for i in range(len(xarray)):
-        #     plt.scatter(xarray[i], yarray[i], c=colors[i], s=100)
-
-        # # Make array of colors
-        # colors = cm.GnBu(np.linspace(0, 1, len(a)))
-        # # Plot graph
-        # for i in range(len(a)):
-        #     plt.scatter(a[i], b[i], c=colors[i], s=100)
-        # plt.show()
-
         plt.plot(r0x, r0y, 'ob-')
         plt.plot(r0xe, r0ye, 'xc-')
 

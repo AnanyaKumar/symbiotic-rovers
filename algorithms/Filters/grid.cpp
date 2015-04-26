@@ -1,11 +1,12 @@
 #include <cstdio>
 #include <cmath>
 #include <algorithm>
+#include <boost/python.hpp>
+using namespace boost::python;
 
 #include "point.h"
 #include "gridutil.h"
 
-// The main grid class
 struct Grid {
   double delta_x;
   double delta_y;
@@ -22,12 +23,13 @@ struct Grid {
   double new_center_x;
   double new_center_y;
 
-  Grid(double center_x, double center_y, double delta_x, double delta_y,
-    int num_cells_right, int num_cells_up);
+  Grid();
   ~Grid();
+  void initialize(double center_x, double center_y, double delta_x, double delta_y,
+    int num_cells_right, int num_cells_up);
   Point get_location_from_indices(int xindex, int yindex);
   Point get_new_location_from_indices(int xindex, int yindex);
-  void normalize();
+  void normalize_new();
   Point get_estimated_location();
   void move(double distance_moved, double motion_uncertainty, double heading, 
     double heading_uncertainty);
@@ -35,7 +37,15 @@ struct Grid {
   void swap();
 };
 
-Grid::Grid(double center_x, double center_y, double delta_x, double delta_y,
+Grid::Grid() {
+
+}
+
+Grid::~Grid() {
+  // TODO: free memory
+}
+
+void Grid::initialize(double center_x, double center_y, double delta_x, double delta_y,
     int num_cells_right, int num_cells_up) {
   this->center_x = center_x;
   this->center_y = center_y;
@@ -49,13 +59,10 @@ Grid::Grid(double center_x, double center_y, double delta_x, double delta_y,
   new_pdf = new double*[this->num_cells_x];
   for (int i = 0; i < this->num_cells_x; i++) {
     pdf[i] = new double[this->num_cells_y];
+    std::fill(pdf[i], pdf[i] + this->num_cells_y, 0);
     new_pdf[i] = new double[this->num_cells_y];
   }
   pdf[num_cells_right][num_cells_up] = 1;
-}
-
-Grid::~Grid() {
-
 }
 
 Point Grid::get_location_from_indices(int xindex, int yindex) {
@@ -84,16 +91,16 @@ Point Grid::get_estimated_location() {
   return this->get_location_from_indices(best_xidx, best_yidx);
 }
 
-void Grid::normalize() {
+void Grid::normalize_new() {
   double total_probability = 0;
   for (int i = 0; i < num_cells_x; i++) {
     for (int j = 0; j < num_cells_y; j++) {
-      total_probability += pdf[i][j];
+      total_probability += new_pdf[i][j];
     }
   }
   for (int i = 0; i < num_cells_x; i++) {
     for (int j = 0; j < num_cells_y; j++) {
-      pdf[i][j] /= total_probability;
+      new_pdf[i][j] /= total_probability;
     }
   }
 }
@@ -122,12 +129,30 @@ void Grid::move(double distance_moved, double motion_uncertainty, double heading
       new_pdf[xnew_idx][ynew_idx] = probability;
     }
   }
-  swap();
-  normalize();
+  normalize_new();
 }
 
 void Grid::update_distance(Grid other, double distance, double distance_uncertainty) {
-
+  new_center_x = center_x;
+  new_center_y = center_y;
+  for (int xnew_idx = 0; xnew_idx < num_cells_x; xnew_idx++) {
+    for (int ynew_idx = 0; ynew_idx < num_cells_y; ynew_idx++) {
+      double probability = 0;
+      Point new_p = get_new_location_from_indices(xnew_idx, ynew_idx);
+      for (int xother_idx = 0; xother_idx < other.num_cells_x; xother_idx++) {
+        for (int yother_idx = 0; yother_idx < other.num_cells_y; yother_idx++) {
+          Point other_p = other.get_location_from_indices(xother_idx, yother_idx);
+          double dist = gridutil::distance(other_p, new_p);
+          double prob_measured_given_data = gridutil::probability_normal(distance, 
+            distance_uncertainty, dist);
+          probability += (prob_measured_given_data * pdf[xnew_idx][ynew_idx] *
+            other.pdf[xother_idx][yother_idx]);
+        }
+      }
+      new_pdf[xnew_idx][ynew_idx] = probability;
+    }
+  }
+  normalize_new();
 }
 
 void Grid::swap() {
@@ -136,11 +161,27 @@ void Grid::swap() {
   std::swap(center_y, new_center_y);
 }
 
+BOOST_PYTHON_MODULE(grid)
+{
+    class_<Grid>("Grid")
+        .def("initialize", &Grid::initialize)
+        .def("get_estimated_location", &Grid::get_estimated_location)
+        .def("move", &Grid::move)
+        .def("update_distance", &Grid::update_distance)
+        .def("swap", &Grid::swap);
+    class_<Point>("Point")
+      .def_readonly("x", &Point::x)
+      .def_readonly("y", &Point::y);
+};
+
 int main () {
-  Grid g(0,0,0.05,0.05,20,20);
+  // For testing
+  Grid g;
+  g.initialize(0,0,0.05,0.05,20,20);
   gridutil::test();
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 1; i++) {
     g.move(5, 0.1, 0, 0.1);
+    g.swap();
     Point p = g.get_estimated_location();
     printf("%lf %lf\n", p.x, p.y);
   }

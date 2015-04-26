@@ -5,6 +5,6 @@ from distutils.extension import Extension
  
 setup(name="PackageName",
     ext_modules=[
-        Extension("Grid", ["grid.cpp"],
+        Extension("grid", ["grid.cpp"],
         libraries = ["boost_python"])
     ])
