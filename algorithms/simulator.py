@@ -15,7 +15,7 @@ class Simulator():
         self.A_INIT = ANGLE_BOUND
         self.D_INIT = MEAN_DIST
 
-    def generate_path(self, trace_index, num_points, motion_uncertainties, angle_uncertainties, distance_uncertainties):
+    def generate_path(self, trace_index, num_points, motion_uncertainties, angle_uncertainties, distance_uncertainties, delta_heading_uncertainties):
         f = open('traces/trace' + str(trace_index), 'w')
 
         f.write("%d # Number of rovers\n\n" % 2)
@@ -35,6 +35,7 @@ class Simulator():
                 (motion_uncertainties[0], motion_uncertainties[1]))
         f.write("A %f %f\n" % (angle_uncertainties[0], angle_uncertainties[1]))
         f.write("D %f %f\n" % (distance_uncertainties[0], distance_uncertainties[1]))
+        f.write("H %f %f\n" % (delta_heading_uncertainties[0], delta_heading_uncertainties[1]))
         f.write("\n")
 
         f.write("# Start input trace \n\n")
@@ -45,8 +46,8 @@ class Simulator():
             angle_delta2 = random.random() * 2 * self.A_INIT - self.A_INIT
             angle2 = angle_delta2 + 90
 
-            d1 = max(np.random.normal(self.D_INIT, self.D_INIT / 4), 0.01)
-            d2 = max(np.random.normal(self.D_INIT, self.D_INIT / 4), 0.01)
+            d1 = max(np.random.normal(self.D_INIT, self.D_INIT / 4.0), 0.01)
+            d2 = max(np.random.normal(self.D_INIT, self.D_INIT / 4.0), 0.01)
 
             gt_x0 = x0 + d1 * math.cos(math.radians(angle1))
             gt_y0 = y0 + d1 * math.sin(math.radians(angle1))
@@ -65,9 +66,12 @@ class Simulator():
             pd1_err = np.random.normal(gt_d, gt_d * distance_uncertainties[0])
             pd2_err = np.random.normal(gt_d, gt_d * distance_uncertainties[1])
 
+            ph1_err = np.random.normal(math.radians(angle1 - angle2), delta_heading_uncertainties[0])
+            ph2_err = np.random.normal(math.radians(angle1 - angle2), delta_heading_uncertainties[1])
+
             f.write("M %f %f %f %f\n" % (d1_err, angle1_err, d2_err, angle2_err))
             f.write("# %f %f %f %f\n" % (d1, angle1, d2, angle2))
-            f.write("D %f %f\n" % (pd1_err, pd2_err))
+            f.write("D %f %f %f %f\n" % (pd1_err, pd2_err, ph1_err, ph2_err))
             f.write("C %f %f %f %f\n" % (gt_x0, gt_y0, gt_x1, gt_y1))
 
             x0 = gt_x0
@@ -77,8 +81,8 @@ class Simulator():
 
         f.close()
 if __name__ == "__main__":
-    x = Simulator(10, 10, 90, 15)
+    x = Simulator(0, 0, 45, 1)
     if("-h" in sys.argv or len(sys.argv) != 3):
         print "python simulator.py <trace_number> <number of points>"
         sys.exit()
-    x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.02, 0.02], [10.0, 10.0], [0.01, 0.01])
+    x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.05, 0.05], [1.0, 1.0], [0.1, 0.1], [0.5, 0.5])

@@ -8,7 +8,7 @@ class OdometryLocalize(Localize_Interface):
 
   @util.overrides(Localize_Interface)
   def __init__(self, start_positions, motion_uncertainties, angle_uncertainties,
-    distance_uncertainties):
+    distance_uncertainties, delta_heading_uncertainties):
     self.positions = start_positions
 
   @util.overrides(Localize_Interface)
@@ -22,7 +22,7 @@ class OdometryLocalize(Localize_Interface):
       self.positions[i] = move(self.positions[i], distances_moved[i], directions[i])
 
   @util.overrides(Localize_Interface)
-  def measure_distance(self, distances):
+  def measure_distance(self, distances, headings):
     pass
 
   @util.overrides(Localize_Interface)
