@@ -2,7 +2,7 @@ import math
 import sys
 
 from ekf import ExtendedKalmanFilter
-# from grid_localize import GridLocalize
+from grid_localize import GridLocalize
 from odometry_localize import OdometryLocalize
 
 from mpl_toolkits.mplot3d import Axes3D
@@ -228,8 +228,8 @@ class Parser():
                 op = OdometryLocalize(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 1):
                 op = ExtendedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
-            # elif(type == 2):
-            #     op = GridLocalize(init_xy, m_var, a_var, d_var)
+            elif(type == 2):
+                op = GridLocalize(init_xy, m_var, a_var, d_var)
             else:
                 print "Unknown filter type"
                 sys.exit()
