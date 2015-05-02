@@ -28,7 +28,7 @@ struct Grid {
   void move(Grid *old_grid, double distance_moved, double motion_uncertainty, double heading, 
     double heading_uncertainty);
   void update_distance(Grid *my_old_grid, Grid *other_old_grid, double distance,
-    double distance_uncertainty);
+    double distance_uncertainty, double delta_heading, double delta_heading_uncertainty);
 
   void recenter(Grid *old_grid);
   void normalize();
@@ -105,7 +105,7 @@ void Grid::move(Grid *old_grid, double distance_moved, double motion_uncertainty
 }
 
 void Grid::update_distance(Grid *my_old_grid, Grid *other_old_grid, double distance,
-    double distance_uncertainty) {
+    double distance_uncertainty, double delta_heading, double delta_heading_uncertainty) {
   center_x = my_old_grid->center_x;
   center_y = my_old_grid->center_y;
   for (int xnew_idx = 0; xnew_idx < num_cells_x; xnew_idx++) {
@@ -116,10 +116,15 @@ void Grid::update_distance(Grid *my_old_grid, Grid *other_old_grid, double dista
         for (int yother_idx = 0; yother_idx < other_old_grid->num_cells_y; yother_idx++) {
           Point other_p = other_old_grid->get_location_from_indices(xother_idx, yother_idx);
           double dist = gridutil::distance(other_p, new_p);
-          double prob_measured_given_data = gridutil::probability_normal(distance, 
+          double prob_dist_given_data = gridutil::probability_normal(distance, 
             distance_uncertainty, dist);
-          probability += (prob_measured_given_data * my_old_grid->pdf[xnew_idx][ynew_idx] *
-            other_old_grid->pdf[xother_idx][yother_idx]);
+          double prob_heading_given_data = 1;
+          // double cur_heading = gridutil::heading(new_p, other_p);
+          // double heading_diff = gridutil::angle_difference(delta_heading, cur_heading);
+          // double prob_heading_given_data = gridutil::probability_normal(0, 
+          //   delta_heading_uncertainty, heading_diff);
+          probability += (prob_dist_given_data * prob_heading_given_data * 
+            my_old_grid->pdf[xnew_idx][ynew_idx] * other_old_grid->pdf[xother_idx][yother_idx]);
         }
       }
       pdf[xnew_idx][ynew_idx] = probability;

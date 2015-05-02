@@ -25,7 +25,8 @@ public:
 
   void move(double distance_moved, double motion_uncertainty, double heading, 
     double heading_uncertainty);
-  static void update_distance(GridPdf g1, GridPdf g2, double distance, double distance_uncertainty);
+  static void update_distance(GridPdf g1, GridPdf g2, double distance, double distance_uncertainty,
+    double heading, double delta_heading_uncertainty);
 
   void commit();
 };
@@ -66,17 +67,21 @@ void GridPdf::move(double distance_moved, double motion_uncertainty, double head
   commit();
 }
 
-void GridPdf::update_distance(GridPdf g1, GridPdf g2, double distance, double distance_uncertainty) {
-  g1.new_grid->update_distance(g1.cur_grid, g2.cur_grid, distance, distance_uncertainty);
-  g1.commit();
-  g2.new_grid->update_distance(g2.cur_grid, g1.cur_grid, distance, distance_uncertainty);
-  g2.commit(); 
+void GridPdf::update_distance(GridPdf g1, GridPdf g2, double distance, double distance_uncertainty,
+  double heading, double delta_heading_uncertainty) {
+  // g1.new_grid->update_distance(g1.cur_grid, g2.cur_grid, distance, distance_uncertainty, 
+  //   heading, delta_heading_uncertainty);
+  // g1.commit();
+  // g2.new_grid->update_distance(g2.cur_grid, g1.cur_grid, distance, distance_uncertainty,
+  //   heading + M_PI, delta_heading_uncertainty);
+  // g2.commit(); 
 }
 
 
 void GridPdf::commit() {
   new_grid->normalize();
-  cur_grid->recenter(new_grid);
+  std::swap(cur_grid, new_grid);
+  // cur_grid->recenter(new_grid);
 }
 
 BOOST_PYTHON_MODULE(grid_pdf)
@@ -102,20 +107,17 @@ int main () {
   GridPdf g2;
   g2.initialize(0,0,0.05,0.05,10,10);
 
-  g1.move(5, 1, 0, 0.1);
-  g2.move(10, 1, 0, 0.1);
-  GridPdf::update_distance(g1, g2, 4.2, 0.5);
+  for (int i = 0; i < 1; i++) {
+    g1.move(5, 0.5, 0, 0.1);
+    g2.move(10, 1, 0, 0.1);
+    GridPdf::update_distance(g1, g2, 4.2, 0.5, 0, 0.001);
 
-  Point p = g1.get_estimated_location();
-  printf("%lf %lf\n", p.x, p.y);
+    Point p = g1.get_estimated_location();
+    printf("%lf %lf\n", p.x, p.y);
 
-  p = g2.get_estimated_location();
-  printf("%lf %lf\n", p.x, p.y);
+    p = g2.get_estimated_location();
+    printf("%lf %lf\n", p.x, p.y);
+  }
 
-  // for (int i = 0; i < 20; i++) {
-  //   g.move(5, 0.1, 0, 0.1);
-  //   Point p = g.get_estimated_location();
-  //   printf("%lf %lf\n", p.x, p.y);
-  // }
   return 0;
 }

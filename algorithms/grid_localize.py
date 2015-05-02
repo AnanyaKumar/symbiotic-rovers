@@ -13,10 +13,11 @@ class GridLocalize(Localize_Interface):
     self.grids = []    
     for i in range(2):
       self.grids.append(grid_pdf.GridPdf())
-      self.grids[i].initialize(start_positions[i][0], start_positions[i][1], 0.4, 0.4, 10, 10)
+      self.grids[i].initialize(start_positions[i][0], start_positions[i][1], 0.5, 0.5, 10, 10)
     self.motion_uncertainties = motion_uncertainties
     self.angle_uncertainties = angle_uncertainties
     self.distance_uncertainties = distance_uncertainties
+    self.delta_heading_uncertainties = delta_heading_uncertainties
 
   @util.overrides(Localize_Interface)
   def measure_movement(self, distances_moved, directions):
@@ -38,12 +39,18 @@ class GridLocalize(Localize_Interface):
       distance = (distances[0] + distances[1]) / 2
       distance_uncertainty = (dist_uncertainties[0] + dist_uncertainties[1]) / 2
 
-    grid_pdf.GridPdf.update_distance(self.grids[0], self.grids[1], distance, distance_uncertainty)
+    grid_pdf.GridPdf.update_distance(self.grids[0], self.grids[1], distance, distance_uncertainty,
+      headings[0], self.delta_heading_uncertainties[0])
 
   @util.overrides(Localize_Interface)
   def get_pose_estimate(self, rover_idx):
     p = self.grids[rover_idx].get_estimated_location()
     return (p.x, p.y)
+
+  @util.overrides(Localize_Interface)
+  def get_possible_pose_estimates(self, rover_idx):
+    (best_x, best_y) = self.get_pose_estimate(rover_idx)
+    return [[best_x], [best_y]]
 
   @staticmethod
   def make_2d_list(grid):
@@ -83,7 +90,7 @@ if __name__ == "__main__":
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
 
-  g.measure_distance([0.5, 0.5], [0.1, 0.1])
+  g.measure_distance([0.5, 0.5], [0, 0])
   g.plot_grids(6)
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)

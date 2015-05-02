@@ -47,3 +47,6 @@ class Localize_Interface:
       [x, y] representing the best estimate of the rover's pose. All floats.
     """
     pass
+
+  def get_possible_pose_estimates(self, rover_idx):
+    pass

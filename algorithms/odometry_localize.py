@@ -28,3 +28,8 @@ class OdometryLocalize(Localize_Interface):
   @util.overrides(Localize_Interface)
   def get_pose_estimate(self, rover_idx):
     return self.positions[rover_idx]
+
+  @util.overrides(Localize_Interface)
+  def get_possible_pose_estimates(self, rover_idx):
+    (best_x, best_y) = self.get_pose_estimate(rover_idx)
+    return [[best_x], [best_y]]
