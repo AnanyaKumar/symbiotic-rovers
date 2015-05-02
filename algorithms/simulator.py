@@ -57,17 +57,17 @@ class Simulator():
 
             gt_d = math.sqrt((gt_x0 - gt_x1) ** 2 + (gt_y0 - gt_y1) ** 2)
 
-            d1_err = np.random.normal(d1, d1 * motion_uncertainties[0])
-            d2_err = np.random.normal(d2, d2 * motion_uncertainties[1])
+            d1_err = np.random.normal(d1, math.sqrt(d1 * motion_uncertainties[0]))
+            d2_err = np.random.normal(d2, math.sqrt(d2 * motion_uncertainties[1]))
 
-            angle1_err = np.random.normal(angle1, angle_uncertainties[0])
-            angle2_err = np.random.normal(angle2, angle_uncertainties[1])
+            angle1_err = np.random.normal(angle1, math.sqrt(angle_uncertainties[0]))
+            angle2_err = np.random.normal(angle2, math.sqrt(angle_uncertainties[1]))
 
-            pd1_err = np.random.normal(gt_d, gt_d * distance_uncertainties[0])
-            pd2_err = np.random.normal(gt_d, gt_d * distance_uncertainties[1])
+            pd1_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[0]))
+            pd2_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[1]))
 
-            ph1_err = np.random.normal(math.radians(angle1 - angle2), delta_heading_uncertainties[0])
-            ph2_err = np.random.normal(math.radians(angle1 - angle2), delta_heading_uncertainties[1])
+            ph1_err = np.random.normal(math.radians(angle1 - angle2), math.sqrt(delta_heading_uncertainties[0]))
+            ph2_err = np.random.normal(math.radians(angle1 - angle2), math.sqrt(delta_heading_uncertainties[1]))
 
             f.write("M %f %f %f %f\n" % (d1_err, angle1_err, d2_err, angle2_err))
             f.write("# %f %f %f %f\n" % (d1, angle1, d2, angle2))
