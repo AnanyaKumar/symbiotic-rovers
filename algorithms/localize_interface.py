@@ -2,8 +2,8 @@
 
 class Localize_Interface:
 
-  def __init__(self, start_positions, motion_uncertainties, angle_uncertainties, 
-    distance_uncertainties):
+  def __init__(self, start_positions, motion_uncertainties, angle_uncertainties,
+    distance_uncertainties, delta_heading_uncertainties):
     """Initializes rover states with positions and uncertainty data.
 
     Args:
@@ -21,17 +21,17 @@ class Localize_Interface:
     """Update estimates of the rovers' poses using rover odometry/angle data.
 
     Args:
-      distances_moved: list containing distance moved (measured) by the rovers in meters. All 
+      distances_moved: list containing distance moved (measured) by the rovers in meters. All
         floats.
       directions: list containing heading (measured) of each rover. All floats.
     """
     pass
 
-  def measure_distance(self, distances):
+  def measure_distance(self, distances, headings):
     """Update estimates of rovers' poses using measured distance between the rovers.
-    
+
     Args:
-      distances: [d_0, d_1] 
+      distances: [d_0, d_1]
         d_0 is distance measured by rover 0 to rover 1, in meters (float).
         d_1 is distance measured by rover 1 to rover 0, in meters (float).
     """
