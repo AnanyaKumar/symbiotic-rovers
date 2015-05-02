@@ -26,9 +26,10 @@ namespace gridutil {
   // Returns the difference between 2 angles, between -pi and pi
   double angle_difference(double angle1, double angle2) {
     double angle_diff = angle2 - angle1;
-    if (angle_diff > M_PI) {
+    while (angle_diff > M_PI) {
       angle_diff -= 2 * M_PI;
-    } else if (angle_diff < -M_PI) {
+    } 
+    while (angle_diff <= -M_PI) {
       angle_diff += 2 * M_PI;
     }
     return angle_diff;
@@ -60,7 +61,6 @@ namespace gridutil {
   void test_smallest_angle() {
     assert(almost(angle_difference(0.1, 0.2), 0.1));
     assert(almost(angle_difference(3, -3), 0.1));
-
   }
 
   void test() {

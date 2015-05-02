@@ -7,9 +7,9 @@ class Aggregate:
         x = simulator.Simulator(10, 10, 180, 15)
         for i in xrange(num_iterations):
             x.generate_path(i, num_points,
-                            [0.05, 0.05],
+                            [0.1, 0.1],
                             [5.0, 5.0],
-                            [0.05, 0.05])
+                            [0.1, 0.1])
 
         o_sum_0 = 0
         ekf_sum_0 = 0

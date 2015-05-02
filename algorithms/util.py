@@ -1,5 +1,6 @@
 import math
 from numpy.random import normal
+from matplotlib import mpl, pyplot
 
 def overrides(interface_class):
     def overrider(method):
@@ -7,24 +8,8 @@ def overrides(interface_class):
         return method
     return overrider
 
-def distance(x0, y0, x1, y1):
-  return math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
-
-def heading(x0, y0, x1, y1):
-  x_disp = x1 - x0
-  y_disp = y1 - y0
-  return math.atan2(y_disp, x_disp) # our coordinate system isn't the mathematical system
-
-def probability_normal(mean, variance, value):
-  sigma = math.sqrt(variance)
-  u = (value - mean) / abs(sigma)
-  y = (1 / (math.sqrt(2 * math.pi) * abs(sigma))) * math.exp(-u * u / 2)
-  return y
-
-def smallest_angle_difference(angle1, angle2):
-  angle_diff = angle2 - angle1
-  if (angle_diff > math.pi):
-    angle_diff -= math.pi
-  elif (angle_diff < -math.pi):
-    angle_diff += math.pi
-  return angle_diff
+def plot_grid(grid, image_name):
+  fig = pyplot.figure(2)
+  cmap2 = mpl.colors.LinearSegmentedColormap.from_list('my_colormap', ['white','black'], 256)
+  img2 = pyplot.imshow(grid, interpolation='nearest', cmap = cmap2,origin='lower')
+  fig.savefig(image_name)
