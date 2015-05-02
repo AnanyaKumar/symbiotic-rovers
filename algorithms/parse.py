@@ -212,7 +212,7 @@ class Parser():
                     if(x[0] == 'O'):
                         m_var = [float(x[1]), float(x[2])]
                     elif(x[0] == 'A'):
-                        a_var = [math.radians(float(x[1])), math.radians(float(x[2]))]
+                        a_var = [math.radians(math.sqrt(float(x[1]))) ** 2, math.radians(math.sqrt(float(x[2]))) ** 2]
                     elif(x[0] == 'D'):
                         d_var = [float(x[1]), float(x[2])]
                     elif(x[0] == 'H'):
@@ -229,7 +229,7 @@ class Parser():
             elif(type == 1):
                 op = ExtendedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 2):
-                op = GridLocalize(init_xy, m_var, a_var, d_var)
+                op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
             else:
                 print "Unknown filter type"
                 sys.exit()
