@@ -2,9 +2,9 @@ import math
 import sys
 
 from ekf import ExtendedKalmanFilter
-from ekf_wph import ExtendedKalmanFilterWPH
+# from ekf_wph import ExtendedKalmanFilterWPH
 from ukf import UnscentedKalmanFilter
-from grid_localize import GridLocalize
+# from grid_localize import GridLocalize
 from odometry_localize import OdometryLocalize
 
 from mpl_toolkits.mplot3d import Axes3D
@@ -162,12 +162,10 @@ class Parser():
             self.r1_gt_pts_x = []
             self.r1_gt_pts_y = []
 
-
             self.r0_sim_x = []
             self.r0_sim_y = []
             self.r1_sim_x = []
             self.r1_sim_y = []
-
 
             while (i < len(s)):
                 if(len(s[i]) <= 1 or s[i][0] == '#'):
@@ -218,7 +216,7 @@ class Parser():
                     elif(x[0] == 'D'):
                         d_var = [float(x[1]), float(x[2])]
                     elif(x[0] == 'H'):
-                        h_var = [float(x[1]), float(x[2])]
+                        h_var = [math.radians(math.sqrt(float(x[1]))) ** 2, math.radians(math.sqrt(float(x[2]))) ** 2]
                     read_uncertainties = read_uncertainties + 1
                     i = i + 1
                     continue
@@ -230,12 +228,12 @@ class Parser():
                 op = OdometryLocalize(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 1):
                 op = ExtendedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
-            elif(type == 2):
-                op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
+#            elif(type == 2):
+#                op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 3):
                 op = UnscentedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
-            elif(type == 4):
-                op = ExtendedKalmanFilterWPH(init_xy, m_var, a_var, d_var, h_var)
+#            elif(type == 4):
+#                op = ExtendedKalmanFilterWPH(init_xy, m_var, a_var, d_var, h_var)
             else:
                 print "Unknown filter type"
                 sys.exit()

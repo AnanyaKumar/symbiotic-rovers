@@ -66,8 +66,8 @@ class Simulator():
             pd1_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[0]))
             pd2_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[1]))
 
-            ph1_err = np.random.normal(math.atan2(gt_y1 - gt_y0, gt_x1 - gt_x0), math.sqrt(delta_heading_uncertainties[0]))
-            ph2_err = np.random.normal(math.atan2(gt_y1 - gt_y0, gt_x1 - gt_x0), math.sqrt(delta_heading_uncertainties[1]))
+            ph1_err = np.random.normal(math.degrees(math.atan2(gt_y1 - gt_y0, gt_x1 - gt_x0)), math.sqrt(delta_heading_uncertainties[0]))
+            ph2_err = np.random.normal(math.degrees(math.atan2(gt_y0 - gt_y1, gt_x0 - gt_x1)), math.sqrt(delta_heading_uncertainties[1]))
 
             f.write("M %f %f %f %f\n" % (d1_err, angle1_err, d2_err, angle2_err))
             f.write("# %f %f %f %f\n" % (d1, angle1, d2, angle2))
