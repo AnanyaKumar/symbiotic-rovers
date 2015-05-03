@@ -63,9 +63,22 @@ namespace gridutil {
     assert(almost(angle_difference(3, -3), 0.1));
   }
 
+  void test_heading() {
+    Point p1(1, 1);
+    Point p2(0, 0);
+    assert(heading(p1, p2) < 0);
+    assert(heading(p2, p1) > 0);
+
+    Point p3(-1, 1);
+    Point p4(0, 0);
+    assert(heading(p3, p4) < 0 && heading(p3, p4) > -M_PI / 2.0);
+    assert(heading(p4, p3) < M_PI && heading(p4, p3) > M_PI / 2.0);
+  }
+
   void test() {
     test_distance();
     test_normal();
+    test_heading();
   }
 }
 
