@@ -11,12 +11,12 @@ class Aggregate:
         return sum([list1[i] < list2[i] for i in xrange(len(list1))])
 
     def run(self, num_points, num_iterations):
-        x = simulator.Simulator(0, 0, 45, 10)
+        x = simulator.Simulator(0, 0, 45, 5)
         for i in xrange(num_iterations):
             x.generate_path(i, num_points,
-                            [0.01, 0.01],
-                            [25.0, 25.0],
-                            [0.04, 0.04],
+                            [0.0001, 0.25],
+                            [0.01, 100.0],
+                            [0.04, 0.4],
                             [1.0, 1.0])
 
         method_names = ["Odometry", "Kalman", "Grid"]

@@ -18,6 +18,14 @@ class Simulator():
     def generate_path(self, trace_index, num_points, motion_uncertainties, angle_uncertainties, distance_uncertainties, delta_heading_uncertainties):
         f = open('traces/trace' + str(trace_index), 'w')
 
+        # Error functions
+        def normal(mean, stddev):
+            return np.random.normal(mean, stddev)
+        def uniform(mean, stddev):
+            return np.random.uniform(mean - math.sqrt(3) * stddev, mean + math.sqrt(3) * stddev)
+
+        error_distribution = uniform
+
         f.write("%d # Number of rovers\n\n" % 2)
 
         x0 = random.random() * self.X_INIT  # 2 * self.X_INIT - self.X_INIT
@@ -45,9 +53,8 @@ class Simulator():
 
             angle_delta2 = random.random() * 2 * self.A_INIT - self.A_INIT
             angle2 = angle_delta2 + 90
-
-            d1 = max(np.random.normal(self.D_INIT, self.D_INIT / 4.0), 0.01)
-            d2 = max(np.random.normal(self.D_INIT, self.D_INIT / 4.0), 0.01)
+            d1 = max(error_distribution(self.D_INIT, self.D_INIT / 4.0), 0.01)
+            d2 = max(error_distribution(self.D_INIT, self.D_INIT / 4.0), 0.01)
 
             gt_x0 = x0 + d1 * math.cos(math.radians(angle1))
             gt_y0 = y0 + d1 * math.sin(math.radians(angle1))
@@ -57,17 +64,17 @@ class Simulator():
 
             gt_d = math.sqrt((gt_x0 - gt_x1) ** 2 + (gt_y0 - gt_y1) ** 2)
 
-            d1_err = np.random.normal(d1, math.sqrt(d1 * motion_uncertainties[0]))
-            d2_err = np.random.normal(d2, math.sqrt(d2 * motion_uncertainties[1]))
+            d1_err = error_distribution(d1, math.sqrt(d1 * motion_uncertainties[0]))
+            d2_err = error_distribution(d2, math.sqrt(d2 * motion_uncertainties[1]))
 
-            angle1_err = np.random.normal(angle1, math.sqrt(angle_uncertainties[0]))
-            angle2_err = np.random.normal(angle2, math.sqrt(angle_uncertainties[1]))
+            angle1_err = error_distribution(angle1, math.sqrt(angle_uncertainties[0]))
+            angle2_err = error_distribution(angle2, math.sqrt(angle_uncertainties[1]))
 
-            pd1_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[0]))
-            pd2_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[1]))
+            pd1_err = error_distribution(gt_d, math.sqrt(gt_d * distance_uncertainties[0]))
+            pd2_err = error_distribution(gt_d, math.sqrt(gt_d * distance_uncertainties[1]))
 
-            ph1_err = np.random.normal(math.degrees(math.atan2(gt_y1 - gt_y0, gt_x1 - gt_x0)), math.sqrt(delta_heading_uncertainties[0]))
-            ph2_err = np.random.normal(math.degrees(math.atan2(gt_y0 - gt_y1, gt_x0 - gt_x1)), math.sqrt(delta_heading_uncertainties[1]))
+            ph1_err = error_distribution(math.degrees(math.atan2(gt_y1 - gt_y0, gt_x1 - gt_x0)), math.sqrt(delta_heading_uncertainties[0]))
+            ph2_err = error_distribution(math.degrees(math.atan2(gt_y0 - gt_y1, gt_x0 - gt_x1)), math.sqrt(delta_heading_uncertainties[1]))
 
             f.write("M %f %f %f %f\n" % (d1_err, angle1_err, d2_err, angle2_err))
             f.write("# %f %f %f %f\n" % (d1, angle1, d2, angle2))
