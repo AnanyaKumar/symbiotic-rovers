@@ -3,7 +3,7 @@ import sys
 
 from ekf import ExtendedKalmanFilter
 # from ekf_wph import ExtendedKalmanFilterWPH
-# from ukf import UnscentedKalmanFilter
+from ukf import UnscentedKalmanFilter
 from grid_localize import GridLocalize
 from odometry_localize import OdometryLocalize
 
@@ -240,8 +240,8 @@ class Parser():
                 op = ExtendedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 2):
                 op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
-            # elif(type == 3):
-            #     op = UnscentedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
+            elif(type == 3):
+                 op = UnscentedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
 #            elif(type == 4):
 #                op = ExtendedKalmanFilterWPH(init_xy, m_var, a_var, d_var, h_var)
             else:
@@ -294,7 +294,7 @@ class Parser():
                         print "Rover 0 est. pose %d: (%f, %f)" % (counter, pred_x0, pred_y0)
                     pd0 = math.sqrt((pred_x0 - x0) ** 2 + (pred_y0 - y0) ** 2)
                     d0 = math.sqrt((x0 - static_xy[0][0]) ** 2 + (y0 - static_xy[0][1]) ** 2)
-                    self.err0_count += 1;
+                    self.err0_count += 1
                     self.err0_final = (100.0 * (abs(pd0) / d0))
                     self.err0 += self.err0_final
                     if verb or (i == len(s) - 1 and psum):
@@ -310,7 +310,7 @@ class Parser():
                         print "Rover 1 est. pose %d: (%f, %f)" % (counter, pred_x1, pred_y1)
                     pd1 = math.sqrt((pred_x1 - x1) ** 2 + (pred_y1 - y1) ** 2)
                     d1 = math.sqrt((x1 - static_xy[1][0]) ** 2 + (y1 - static_xy[1][1]) ** 2)
-                    self.err1_count += 1;
+                    self.err1_count += 1
                     self.err1_final = (100.0 * (abs(pd1) / d1))
                     self.err1 += self.err1_final
 
@@ -332,8 +332,8 @@ class Parser():
             print self.r0_gt_pts_x
             print self.r0_gt_pts_y
         if plot:
-            self.plot_cont(len(self.r0_sim_x) / 2, 500.0, self.r0_sim_x, self.r0_sim_y, self.r0_gt_pts_x, self.r0_gt_pts_y, self.r1_sim_x, self.r1_sim_y, self.r1_gt_pts_x, self.r1_gt_pts_y)
-            # self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
+            # self.plot_cont(len(self.r0_sim_x) / 2, 500.0, self.r0_sim_x, self.r0_sim_y, self.r0_gt_pts_x, self.r0_gt_pts_y, self.r1_sim_x, self.r1_sim_y, self.r1_gt_pts_x, self.r1_gt_pts_y)
+            self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
 
 
 if __name__ == "__main__":

@@ -66,13 +66,19 @@ class Simulator():
             pd1_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[0]))
             pd2_err = np.random.normal(gt_d, math.sqrt(gt_d * distance_uncertainties[1]))
 
-            ph1_err = np.random.normal(math.degrees(math.atan2(gt_y1 - gt_y0, gt_x1 - gt_x0)), math.sqrt(delta_heading_uncertainties[0]))
-            ph2_err = np.random.normal(math.degrees(math.atan2(gt_y0 - gt_y1, gt_x0 - gt_x1)), math.sqrt(delta_heading_uncertainties[1]))
+            ph1 = math.degrees(math.atan2(gt_y1 - gt_y0, gt_x1 - gt_x0))
+            ph2 = math.degrees(math.atan2(gt_y0 - gt_y1, gt_x0 - gt_x1))
 
+            ph1_err = np.random.normal(ph1, math.sqrt(delta_heading_uncertainties[0]))
+            ph2_err = np.random.normal(ph2, math.sqrt(delta_heading_uncertainties[1]))
+
+            f.write("# Point %d\n" % i)
             f.write("M %f %f %f %f\n" % (d1_err, angle1_err, d2_err, angle2_err))
             f.write("# %f %f %f %f\n" % (d1, angle1, d2, angle2))
             f.write("D %f %f %f %f\n" % (pd1_err, pd2_err, ph1_err, ph2_err))
+            f.write("# %f %f %f %f\n" % (gt_d, gt_d, ph1, ph2))
             f.write("C %f %f %f %f\n" % (gt_x0, gt_y0, gt_x1, gt_y1))
+            f.write("\n")
 
             x0 = gt_x0
             y0 = gt_y0
@@ -85,4 +91,4 @@ if __name__ == "__main__":
     if("-h" in sys.argv or len(sys.argv) != 3):
         print "python simulator.py <trace_number> <number of points>"
         sys.exit()
-    x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.05, 0.05], [1.0, 1.0], [0.1, 0.1], [0.5, 0.5])
+    x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.0001, 0.0001], [0.25, 0.25], [0.01, 0.01], [0.25, 0.25])
