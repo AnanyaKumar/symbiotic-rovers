@@ -2,39 +2,59 @@ import sys
 import parse
 import simulator
 import math
+import numpy
 
 class Aggregate:
+    @staticmethod
+    def num_smaller(list1, list2):
+        assert len(list1) == len(list2)
+        return sum([list1[i] < list2[i] for i in xrange(len(list1))])
+
     def run(self, num_points, num_iterations):
         x = simulator.Simulator(0, 0, 45, 10)
         for i in xrange(num_iterations):
             x.generate_path(i, num_points,
-                            [0.1, 0.1],
-                            [25.0, 25.0],
                             [0.01, 0.01],
-                            [1.0, 1.0])
-        o_sum_0 = 0
-        ekf_sum_0 = 0
-        grid_sum_0 = 0
-        o_sum_1 = 0
-        ekf_sum_1 = 0
-        grid_sum_1 = 0
+                            [25.0, 25.0],
+                            [0.04, 0.04],
+                            [5.0, 5.0])
+
+        method_names = ["Odometry", "Kalman", "Grid"]
+        method_ids = [0, 1, 2]
+        control_id = 0
+        errors = [[[], []] for i in method_ids]
+        combined_errors = [[] for i in method_ids]
+
+        # Collect Errors
         y = parse.Parser()
         for i in xrange(num_iterations):
-            y.read_trace("traces/trace" + str(i), 0, False, False, False)
-            o_sum_0 = o_sum_0 + y.err0
-            o_sum_1 = o_sum_1 + y.err1
+            for method_id in method_ids:
+                y.read_trace("traces/trace" + str(i), method_id, False, False, False)
+                errors[method_id][0].append(y.err0)
+                errors[method_id][1].append(y.err1)
+                combined_errors[method_id].append(y.err0 + y.err1)
 
-            y.read_trace("traces/trace" + str(i), 1, False, False, False)
-            ekf_sum_0 = ekf_sum_0 + y.err0
-            ekf_sum_1 = ekf_sum_1 + y.err1
+        # Process and print errors
+        for i in xrange(len(method_ids)):
+            error_mean = [sum(errors[i][0]) / num_iterations, sum(errors[i][1]) / num_iterations]
+            error_stddev = [numpy.std(errors[i][0]), numpy.std(errors[i][1])]
+            error_betters = [Aggregate.num_smaller(errors[i][0], errors[control_id][0]),
+                Aggregate.num_smaller(errors[i][1], errors[control_id][1])]
+            combined_error_mean = sum(combined_errors[i]) / num_iterations
+            combined_error_stddev = numpy.std(combined_errors[i])
+            combined_better = Aggregate.num_smaller(combined_errors[i], combined_errors[control_id])
 
-            y.read_trace("traces/trace" + str(i), 2, False, False, False)
-            grid_sum_0 = grid_sum_0 + y.err0
-            grid_sum_1 = grid_sum_1 + y.err1
+            print "Method %s" % method_names[i]
+            print ("-" * 30)
+            for j in range(2):
+                print ("Rover %d error: %.5f +/- %.5f, %d times better than %s" % 
+                    (j, error_mean[j], error_stddev[j] / math.sqrt(num_iterations), 
+                    error_betters[j], method_names[control_id]))
+            print ("Combined error: %.5f +/- %.5f, %d times better than %s" % 
+                (combined_error_mean, combined_error_stddev / math.sqrt(num_iterations), 
+                combined_better, method_names[control_id]))
+            print "\n"
 
-        print "Odometry error: Rover 0:%f Rover 1:%f" % (o_sum_0 / num_iterations, o_sum_1 / num_iterations)
-        print "EKF error:      Rover 0:%f Rover 1:%f   %d times better" % (ekf_sum_0 / num_iterations, ekf_sum_1 / num_iterations, int(math.floor(o_sum_1 / ekf_sum_1)))
-        print "Grid error:     Rover 0:%f Rover 1:%f" % (grid_sum_0 / num_iterations, grid_sum_1 / num_iterations)
 
 if __name__ == "__main__":
     x = Aggregate()

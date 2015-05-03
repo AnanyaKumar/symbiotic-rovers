@@ -13,7 +13,7 @@ class GridLocalize(Localize_Interface):
     self.grids = []    
     for i in range(2):
       self.grids.append(grid_pdf.GridPdf())
-      self.grids[i].initialize(start_positions[i][0], start_positions[i][1], 0.5, 0.5, 10, 10)
+      self.grids[i].initialize(start_positions[i][0], start_positions[i][1], 0.25, 0.25, 10, 10)
     self.motion_uncertainties = motion_uncertainties
     self.angle_uncertainties = angle_uncertainties
     self.distance_uncertainties = distance_uncertainties
