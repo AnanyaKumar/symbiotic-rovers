@@ -118,11 +118,11 @@ void Grid::update_distance(Grid *my_old_grid, Grid *other_old_grid, double dista
           double dist = gridutil::distance(other_p, new_p);
           double prob_dist_given_data = gridutil::probability_normal(distance, 
             distance_uncertainty, dist);
-          double prob_heading_given_data = 1;
-          // double cur_heading = gridutil::heading(new_p, other_p);
-          // double heading_diff = gridutil::angle_difference(delta_heading, cur_heading);
-          // double prob_heading_given_data = gridutil::probability_normal(0, 
-          //   delta_heading_uncertainty, heading_diff);
+          // double prob_heading_given_data = 1;
+          double cur_heading = gridutil::heading(new_p, other_p);
+          double heading_diff = gridutil::angle_difference(delta_heading, cur_heading);
+          double prob_heading_given_data = gridutil::probability_normal(0, 
+            delta_heading_uncertainty, heading_diff);
           probability += (prob_dist_given_data * prob_heading_given_data * 
             my_old_grid->pdf[xnew_idx][ynew_idx] * other_old_grid->pdf[xother_idx][yother_idx]);
         }

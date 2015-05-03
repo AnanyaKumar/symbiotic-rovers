@@ -3,8 +3,8 @@ import sys
 
 from ekf import ExtendedKalmanFilter
 # from ekf_wph import ExtendedKalmanFilterWPH
-from ukf import UnscentedKalmanFilter
-# from grid_localize import GridLocalize
+# from ukf import UnscentedKalmanFilter
+from grid_localize import GridLocalize
 from odometry_localize import OdometryLocalize
 
 from mpl_toolkits.mplot3d import Axes3D
@@ -34,11 +34,14 @@ class Parser():
     r1_sim_y = []
 
     err0 = 0
+    err0_count = 0
+    err0_final = 0
     err1 = 0
+    err1_count = 0
+    err1_final = 0
 
     def __init__(self):
-        self.err0 = 0
-        self.err1 = 0
+        pass
 
     def plot_points(self, r0x, r0y, r0xe, r0ye, r1x, r1y, r1xe, r1ye):
         plt.plot(r0x, r0y, 'ob-')
@@ -167,6 +170,13 @@ class Parser():
             self.r1_sim_x = []
             self.r1_sim_y = []
 
+            self.err0 = 0
+            self.err0_count = 0
+            self.err0_final = 0
+            self.err1 = 0
+            self.err1_count = 0
+            self.err1_final = 0
+
             while (i < len(s)):
                 if(len(s[i]) <= 1 or s[i][0] == '#'):
                     i = i + 1
@@ -228,10 +238,10 @@ class Parser():
                 op = OdometryLocalize(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 1):
                 op = ExtendedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
-#            elif(type == 2):
-#                op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
-            elif(type == 3):
-                op = UnscentedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
+            elif(type == 2):
+                op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
+            # elif(type == 3):
+            #     op = UnscentedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
 #            elif(type == 4):
 #                op = ExtendedKalmanFilterWPH(init_xy, m_var, a_var, d_var, h_var)
             else:
@@ -264,8 +274,8 @@ class Parser():
                 elif x[0] == 'D':
                     d0 = float(x[1])
                     d1 = float(x[2])
-                    ph0 = float(x[3])
-                    ph1 = float(x[4])
+                    ph0 = math.radians(float(x[3]))
+                    ph1 = math.radians(float(x[4]))
                     op.measure_distance([d0, d1], [ph0, ph1])
                     (x0, y0) = op.get_pose_estimate(0)
                     (x1, y1) = op.get_pose_estimate(1)
@@ -284,7 +294,9 @@ class Parser():
                         print "Rover 0 est. pose %d: (%f, %f)" % (counter, pred_x0, pred_y0)
                     pd0 = math.sqrt((pred_x0 - x0) ** 2 + (pred_y0 - y0) ** 2)
                     d0 = math.sqrt((x0 - static_xy[0][0]) ** 2 + (y0 - static_xy[0][1]) ** 2)
-                    self.err0 = (100.0 * (abs(pd0) / d0))
+                    self.err0_count += 1;
+                    self.err0_final = (100.0 * (abs(pd0) / d0))
+                    self.err0 += self.err0_final
                     if verb or (i == len(s) - 1 and psum):
                         print "Rover 0 error: %f%%" % (100.0 * (abs(pd0) / d0))
 
@@ -298,7 +310,9 @@ class Parser():
                         print "Rover 1 est. pose %d: (%f, %f)" % (counter, pred_x1, pred_y1)
                     pd1 = math.sqrt((pred_x1 - x1) ** 2 + (pred_y1 - y1) ** 2)
                     d1 = math.sqrt((x1 - static_xy[1][0]) ** 2 + (y1 - static_xy[1][1]) ** 2)
-                    self.err1 = (100.0 * (abs(pd1) / d1))
+                    self.err1_count += 1;
+                    self.err1_final = (100.0 * (abs(pd1) / d1))
+                    self.err1 += self.err1_final
 
                     if verb or (i == len(s) - 1 and psum):
                         print "Rover 1 error: %f%%" % (100.0 * (abs(pd1) / d1))
