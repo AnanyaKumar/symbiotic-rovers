@@ -2,6 +2,8 @@ import math
 import sys
 
 from ekf import ExtendedKalmanFilter
+from ekf_wph import ExtendedKalmanFilterWPH
+from ukf import UnscentedKalmanFilter
 from grid_localize import GridLocalize
 from odometry_localize import OdometryLocalize
 
@@ -230,6 +232,10 @@ class Parser():
                 op = ExtendedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 2):
                 op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
+            elif(type == 3):
+                op = UnscentedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
+            elif(type == 4):
+                op = ExtendedKalmanFilterWPH(init_xy, m_var, a_var, d_var, h_var)
             else:
                 print "Unknown filter type"
                 sys.exit()
@@ -321,6 +327,6 @@ class Parser():
 if __name__ == "__main__":
     x = Parser()
     if("-h" in sys.argv or len(sys.argv) != 6):
-        print "python parser.py <tracefile> <0 = Odom / 1 = EKF / 2 = Grid> <1 = verbose> <1 = plot / 0 = no plot> <1 = summary>"
+        print "python parser.py <tracefile> <0 = Odom / 1 = EKF / 2 = Grid / 3 = UKF / 4 = EKF w/ H> <1 = verbose> <1 = plot / 0 = no plot> <1 = summary>"
         sys.exit()
     x.read_trace(sys.argv[1], int(sys.argv[2]), bool(int(sys.argv[3])), bool(int(sys.argv[4])), bool(int(sys.argv[5])))
