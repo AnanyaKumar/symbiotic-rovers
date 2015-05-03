@@ -28,17 +28,16 @@ class GridLocalize(Localize_Interface):
   @util.overrides(Localize_Interface)
   def measure_distance(self, distances, headings):
     dist_uncertainties = [self.distance_uncertainties[i] * distances[i] for i in range(2)]
-    eps = 0.05
-    if self.distance_uncertainties[0] < self.distance_uncertainties[1] - eps:
+    eps = 0.8
+    if self.distance_uncertainties[0] < self.distance_uncertainties[1] * eps:
       distance = distances[0]
       distance_uncertainty = dist_uncertainties[0]
-    elif self.distance_uncertainties[1] < self.distance_uncertainties[0] - eps:
+    elif self.distance_uncertainties[1] < self.distance_uncertainties[0] * eps:
       distance = distances[1]
       distance_uncertainty = dist_uncertainties[1]
     else:
       distance = (distances[0] + distances[1]) / 2
       distance_uncertainty = (dist_uncertainties[0] + dist_uncertainties[1]) / 2
-
     grid_pdf.GridPdf.update_distance(self.grids[0], self.grids[1], distance, distance_uncertainty,
       headings[0], self.delta_heading_uncertainties[0])
 

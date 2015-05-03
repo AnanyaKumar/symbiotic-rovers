@@ -17,7 +17,7 @@ namespace gridutil {
   }
 
   double probability_normal(double mean, double variance, double value) {
-    double sigma = variance;
+    double sigma = sqrt(variance);
     double u = (value - mean) / fabs(sigma);
     double y = (1 / (sqrt(2 * M_PI) * fabs(sigma))) * exp(-u * u / 2);
     return y;

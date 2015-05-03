@@ -5,13 +5,13 @@ import math
 
 class Aggregate:
     def run(self, num_points, num_iterations):
-        x = simulator.Simulator(0, 0, 45, 1)
+        x = simulator.Simulator(0, 0, 45, 10)
         for i in xrange(num_iterations):
             x.generate_path(i, num_points,
-                            [0.000001, 0.05],
-                            [0.000001, 1.0],
-                            [0.000001, 0.1],
-                            [0.000001, 1.0])
+                            [0.1, 0.1],
+                            [25.0, 25.0],
+                            [0.01, 0.01],
+                            [1.0, 1.0])
         o_sum_0 = 0
         ekf_sum_0 = 0
         grid_sum_0 = 0
@@ -28,9 +28,9 @@ class Aggregate:
             ekf_sum_0 = ekf_sum_0 + y.err0
             ekf_sum_1 = ekf_sum_1 + y.err1
 
-            # y.read_trace("traces/trace" + str(i), 2, False, False)
-            # grid_sum_0 = grid_sum_0 + y.err0
-            # grid_sum_1 = grid_sum_1 + y.err1
+            y.read_trace("traces/trace" + str(i), 2, False, False, False)
+            grid_sum_0 = grid_sum_0 + y.err0
+            grid_sum_1 = grid_sum_1 + y.err1
 
         print "Odometry error: Rover 0:%f Rover 1:%f" % (o_sum_0 / num_iterations, o_sum_1 / num_iterations)
         print "EKF error:      Rover 0:%f Rover 1:%f   %d times better" % (ekf_sum_0 / num_iterations, ekf_sum_1 / num_iterations, int(math.floor(o_sum_1 / ekf_sum_1)))

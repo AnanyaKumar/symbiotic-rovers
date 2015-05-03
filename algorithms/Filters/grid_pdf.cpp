@@ -69,19 +69,18 @@ void GridPdf::move(double distance_moved, double motion_uncertainty, double head
 
 void GridPdf::update_distance(GridPdf g1, GridPdf g2, double distance, double distance_uncertainty,
   double heading, double delta_heading_uncertainty) {
-  // g1.new_grid->update_distance(g1.cur_grid, g2.cur_grid, distance, distance_uncertainty, 
-  //   heading, delta_heading_uncertainty);
-  // g1.commit();
-  // g2.new_grid->update_distance(g2.cur_grid, g1.cur_grid, distance, distance_uncertainty,
-  //   heading + M_PI, delta_heading_uncertainty);
-  // g2.commit(); 
+  g1.new_grid->update_distance(g1.cur_grid, g2.cur_grid, distance, distance_uncertainty, 
+    heading, delta_heading_uncertainty);
+  g2.new_grid->update_distance(g2.cur_grid, g1.cur_grid, distance, distance_uncertainty,
+    heading + M_PI, delta_heading_uncertainty);
+  g1.commit();
+  g2.commit(); 
 }
 
 
 void GridPdf::commit() {
   new_grid->normalize();
-  std::swap(cur_grid, new_grid);
-  // cur_grid->recenter(new_grid);
+  cur_grid->recenter(new_grid);
 }
 
 BOOST_PYTHON_MODULE(grid_pdf)
