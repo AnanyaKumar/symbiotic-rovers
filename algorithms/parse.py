@@ -103,8 +103,8 @@ class Parser():
                 # ax.scatter([cand_x[j]], [cand_y[j]], [0], color='r', marker="o")
                 # fig.canvas.draw()
                 # time.sleep(interval / 4000.0)
-
                 fig.clear()
+                plt.scatter([-2, 3, -2, 3], [12, 12, 0, 0], color='y')
                 plt.scatter(r0gtx, r0gty, color='c', marker='o')
                 plt.scatter(r1gtx, r1gty, color='m', marker='o')
                 plt.plot(local.x0, local.y0, color='b')
@@ -128,6 +128,8 @@ class Parser():
             # ax.scatter(local.x, local.y, local.z, color='b', marker="o")
 
             fig.clear()
+            plt.scatter([-2, 3, -2, 3], [12, 12, 0, 0], color='y')
+            print i
             plt.scatter(r0gtx, r0gty, color='c', marker='o')
             plt.scatter(r1gtx, r1gty, color='m', marker='o')
             local.z.append(0)
@@ -144,6 +146,7 @@ class Parser():
         plt.show()
 
     def read_trace(self, file, type, verb, plot, psum):
+        print "ihigfjhdxsgz"
         with open(file) as f:
             op = None
             s = f.readlines()
@@ -339,7 +342,7 @@ class Parser():
             print self.r0_gt_pts_x
             print self.r0_gt_pts_y
         if plot:
-            # self.plot_cont(len(self.r0_sim_x) / 2, 500.0, self.r0_sim_x, self.r0_sim_y, self.r0_gt_pts_x, self.r0_gt_pts_y, self.r1_sim_x, self.r1_sim_y, self.r1_gt_pts_x, self.r1_gt_pts_y)
+            self.plot_cont(len(self.r0_sim_x) / 2, 1500.0, self.r0_sim_x, self.r0_sim_y, self.r0_gt_pts_x, self.r0_gt_pts_y, self.r1_sim_x, self.r1_sim_y, self.r1_gt_pts_x, self.r1_gt_pts_y)
             self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
 
     def read_traceXY(self, file, type, verb, plot, psum, init_x, init_y):
@@ -538,8 +541,10 @@ class Parser():
             print self.r0_gt_pts_x
             print self.r0_gt_pts_y
         if plot:
-            # self.plot_cont(len(self.r0_sim_x) / 2, 500.0, self.r0_sim_x, self.r0_sim_y, self.r0_gt_pts_x, self.r0_gt_pts_y, self.r1_sim_x, self.r1_sim_y, self.r1_gt_pts_x, self.r1_gt_pts_y)
-            self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
+            print "ok"
+            self.plot_cont(len(self.r0_sim_x) / 2, 1500.0, self.r0_sim_x, self.r0_sim_y, self.r0_gt_pts_x, self.r0_gt_pts_y, self.r1_sim_x, self.r1_sim_y, self.r1_gt_pts_x, self.r1_gt_pts_y)
+            print "wtf"
+            # self.plot_points(self.r0_gt_pts_x, self.r0_gt_pts_y, self.r0_est_pts_x, self.r0_est_pts_y, self.r1_gt_pts_x, self.r1_gt_pts_y, self.r1_est_pts_x, self.r1_est_pts_y)
 
 
 if __name__ == "__main__":

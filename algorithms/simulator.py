@@ -104,10 +104,10 @@ class Simulator():
             y1 = gt_y1
 
         f.close()
-        
+
 if __name__ == "__main__":
-    x = Simulator(0, 0, 45, 1)
+    x = Simulator(0, 0, 15, 1)
     if("-h" in sys.argv or len(sys.argv) != 3):
         print "python simulator.py <trace_number> <number of points>"
         sys.exit()
-    x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.01, 0.01], [0.25, 0.25], [0.04, 0.04], [0.25, 0.25])
+    x.generate_path(int(sys.argv[1]), int(sys.argv[2]), [0.0001, 0.01], [0.25, 0.25], [0.0004, 0.04], [0.25, 0.25])
