@@ -6,7 +6,7 @@
 
 import numpy as np
 import math
-
+import random
 from localize_interface import Localize_Interface
 import util
 
@@ -29,6 +29,7 @@ class ExtendedKalmanFilter(Localize_Interface):
         # self.x = [start_positions[0][0], start_positions[0][1], start_positions[1][0], start_positions[1][1], 0, 0]
 
         self.x = [start_positions[0][0], start_positions[0][1], start_positions[1][0], start_positions[1][1]]
+
         # self.m_x = [0, 0, 0, 0, 0, 0]
         self.m_x = [0, 0, 0, 0]
         # self.output_x = [0, 0, 0, 0, 0, 0]
@@ -118,7 +119,10 @@ class ExtendedKalmanFilter(Localize_Interface):
         # Predicted covariance
         sigma_t = np.mat(F) * np.mat(self.sigma) * np.transpose(np.mat(F)) +\
                   np.mat(L) * np.mat(Q) * np.transpose(np.mat(L))
-
+        # sigma_t[0, 0] = 0
+        # sigma_t[0, 1] = 0
+        # sigma_t[1, 0] = 0
+        # sigma_t[1, 1] = 0
         # Measurement Jacobian
         d = math.sqrt((self.x[0] - self.x[2]) ** 2 +
                       (self.x[1] - self.x[3]) ** 2)
