@@ -78,11 +78,13 @@ class ExtendedKalmanFilterWPH(Localize_Interface):
         covar_delta = .0000001
 
         # Measurement covariance matrix
-        v = [[self.d_var[0] * distances[0], covar_delta],
-             [covar_delta, self.d_var[1] * distances[1]]]
+        v = [[self.d_var[0] * distances[0], covar_delta, 0, 0],
+             [covar_delta, self.d_var[1] * distances[1], 0, 0],
+             [0, 0, self.h_var[0], covar_delta],
+             [0, 0, covar_delta, self.h_var[1]]]
 
         # Measurement vector
-        z = [distances[0], distances[1]]
+        z = [distances[0], distances[1], headings[0], headings[1]]
 
         # Noise covariance matrix (Assume nonzero between rover
         # heading/odometry)
@@ -108,11 +110,21 @@ class ExtendedKalmanFilterWPH(Localize_Interface):
         # Measurement Jacobian
         d = math.sqrt((self.x[0] - self.x[2]) ** 2 +
                       (self.x[1] - self.x[3]) ** 2)
+        xdiff = (self.x[0] - self.x[2]) ** 2
+        ydiff = (self.x[1] - self.x[3]) ** 2
         H_t = np.matrix(
             [[(self.x[0] - self.x[2]) / d, (self.x[1] - self.x[3]) / d,
               (self.x[2] - self.x[0]) / d, (self.x[3] - self.x[1]) / d],
              [(self.x[0] - self.x[2]) / d, (self.x[1] - self.x[3]) / d,
-              (self.x[2] - self.x[0]) / d, (self.x[3] - self.x[1]) / d]
+              (self.x[2] - self.x[0]) / d, (self.x[3] - self.x[1]) / d],
+             [(1.0 / d - (xdiff) / (d ** 3)) / math.sqrt(1 - xdiff / (d ** 2)),
+              (-1.0 * (self.x[2] - self.x[0]) * (self.x[3] - self.x[1]) / ((d ** 3) * math.sqrt(1 - xdiff / (d ** 2)))),
+              (-1.0 * (1.0 / d - (xdiff) / (d ** 3)) / math.sqrt(1 - xdiff / (d ** 2))),
+              (1.0 * (self.x[2] - self.x[0]) * (self.x[3] - self.x[1]) / ((d ** 3) * math.sqrt(1 - xdiff / (d ** 2))))],
+             [(-1.0 / d + (xdiff) / (d ** 3)) / math.sqrt(1 - xdiff / (d ** 2)),
+              (1.0 * (self.x[2] - self.x[0]) * (self.x[3] - self.x[1]) / ((d ** 3) * math.sqrt(1 - xdiff / (d ** 2)))),
+              ((1.0 / d - (xdiff) / (d ** 3)) / math.sqrt(1 - xdiff / (d ** 2))),
+              (-1.0 * (self.x[2] - self.x[0]) * (self.x[3] - self.x[1]) / ((d ** 3) * math.sqrt(1 - xdiff / (d ** 2))))]
              ])
 
         # Residual covariance
@@ -126,7 +138,7 @@ class ExtendedKalmanFilterWPH(Localize_Interface):
         # Measurement residual
         dist = math.sqrt((self.x[0] - self.x[2]) ** 2 +
                          (self.x[1] - self.x[3]) ** 2)
-        Y_t = np.transpose(np.mat(z)) - np.transpose(np.mat([dist, dist]))
+        Y_t = np.transpose(np.mat(z)) - np.transpose(np.mat([dist, dist, math.atan2(self.x[3] - self.x[1], self.x[2] - self.x[0]), math.atan2(self.x[1] - self.x[3], self.x[0] - self.x[2])]))
 
         # Updated state estimate
         x_t_hat = np.transpose(np.mat(self.x)) + np.mat(K_t) * Y_t
