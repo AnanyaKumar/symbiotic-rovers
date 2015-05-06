@@ -13,7 +13,7 @@ class GridLocalize(Localize_Interface):
     self.grids = []    
     for i in range(2):
       self.grids.append(grid_pdf.GridPdf())
-      self.grids[i].initialize(start_positions[i][0], start_positions[i][1], 0.25, 0.25, 10, 10)
+      self.grids[i].initialize(start_positions[i][0], start_positions[i][1], 0.5, 0.5, 10, 10)
     self.motion_uncertainties = motion_uncertainties
     self.angle_uncertainties = angle_uncertainties
     self.distance_uncertainties = distance_uncertainties
@@ -64,32 +64,17 @@ class GridLocalize(Localize_Interface):
     util.plot_grid(grid1_list, 'gridplots/' + '1-' + str(image_number) + '.png')
 
 if __name__ == "__main__":
-  g = GridLocalize([[0,0], [0,0]], [0.1, 0.1], [0.5, 0.5], [0.1, 0.1], [0.1, 0.1])
+  g = GridLocalize([[0,0], [0,0]], [0.1, 0.1], [0.04, 0.04], [0.0001, 0.0001], [0.1, 0.1])
   g.plot_grids(1)
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
 
-  g.measure_movement([2,1],[0,0])
+  g.measure_movement([10, 10],[- math.pi / 4 - 0.1, math.pi / 4 + 0.1])
   g.plot_grids(2)
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)
 
-  g.measure_movement([2,1],[0,0])
+  g.measure_distance([9.33, 9.33], [0, 0])
   g.plot_grids(3)
-  print g.get_pose_estimate(0)
-  print g.get_pose_estimate(1)
-
-  g.measure_movement([2,1],[0,0])
-  g.plot_grids(4)
-  print g.get_pose_estimate(0)
-  print g.get_pose_estimate(1)
-
-  g.measure_movement([2,1],[0,0])
-  g.plot_grids(5)
-  print g.get_pose_estimate(0)
-  print g.get_pose_estimate(1)
-
-  g.measure_distance([0.5, 0.5], [0, 0])
-  g.plot_grids(6)
   print g.get_pose_estimate(0)
   print g.get_pose_estimate(1)

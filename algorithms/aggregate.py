@@ -11,16 +11,16 @@ class Aggregate:
         return sum([list1[i] < list2[i] for i in xrange(len(list1))])
 
     def run(self, num_points, num_iterations):
-        x = simulator.Simulator(0, 0, 45, 5)
+        x = simulator.Simulator(0, 0, 45, 5, 0.05, 5.0, 0.05)
         for i in xrange(num_iterations):
             x.generate_path(i, num_points,
-                            [0.0001, 0.25],
-                            [0.01, 100.0],
-                            [0.04, 0.4],
-                            [1.0, 1.0])
+                            [0.01, 0.01],
+                            [9, 9],
+                            [0.04, 0.04],
+                            [0.1, 100.0])
 
-        method_names = ["Odometry", "Kalman", "Grid"]
-        method_ids = [0, 1, 2]
+        method_names = ["Odometry", "Kalman", "Grid", "Particle"]
+        method_ids = [0, 1, 2, 4]
         control_id = 0
         errors = [[[], []] for i in method_ids]
         combined_errors = [[] for i in method_ids]
@@ -30,14 +30,14 @@ class Aggregate:
         # Collect Errors
         y = parse.Parser()
         for i in xrange(num_iterations):
-            for method_id in method_ids:
-                y.read_trace("traces/trace" + str(i), method_id, False, False, False)
-                errors[method_id][0].append(y.err0)
-                errors[method_id][1].append(y.err1)
-                combined_errors[method_id].append(y.err0 + y.err1)
-                final_errors[method_id][0].append(y.err0_final)
-                final_errors[method_id][1].append(y.err1_final)
-                combined_final_errors[method_id].append(y.err0_final + y.err1_final)
+            for m in range(len(method_ids)):
+                y.read_trace("traces/trace" + str(i), method_ids[m], False, False, False)
+                errors[m][0].append(y.err0)
+                errors[m][1].append(y.err1)
+                combined_errors[m].append(y.err0 + y.err1)
+                final_errors[m][0].append(y.err0_final)
+                final_errors[m][1].append(y.err1_final)
+                combined_final_errors[m].append(y.err0_final + y.err1_final)
 
         # Process and print errors
         for i in xrange(len(method_ids)):
@@ -65,7 +65,6 @@ class Aggregate:
             print_stats("Final", final_errors, combined_final_errors)
             print_stats("Accumulated", errors, combined_errors)
             print ""
-
 
 if __name__ == "__main__":
     x = Aggregate()
