@@ -7,6 +7,7 @@ from ukf import UnscentedKalmanFilter
 from ukf_wph import UnscentedKalmanFilterWPH
 # from grid_localize import GridLocalize
 from odometry_localize import OdometryLocalize
+from particle_filter import ParticleLocalize
 
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -446,7 +447,9 @@ class Parser():
             #    op = GridLocalize(init_xy, m_var, a_var, d_var, h_var)
             elif(type == 3):
                  op = UnscentedKalmanFilter(init_xy, m_var, a_var, d_var, h_var)
-#            elif(type == 4):
+            elif(type == 4):
+                op = ParticleLocalize(init_xy, m_var, a_var, d_var, h_var)
+#            elif(type == 5):
 #                op = ExtendedKalmanFilterWPH(init_xy, m_var, a_var, d_var, h_var)
             else:
                 print "Unknown filter type"
