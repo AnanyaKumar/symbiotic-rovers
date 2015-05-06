@@ -67,6 +67,8 @@ class UnscentedKalmanFilter(Localize_Interface):
         X[3] = self.x[3]
 
         s = np.matrix(self.sigma)
+        s = (np.matrix(s) + np.transpose(np.matrix(s))) / 2
+
         covar_delta = .0000001
 
         # P_{k-1,k-1}
@@ -78,14 +80,15 @@ class UnscentedKalmanFilter(Localize_Interface):
                       [0, 0, 0, 0, covar_delta, self.w[1] + covar_delta, 0, 0],
                       [0, 0, 0, 0, 0, 0, self.w[2] + covar_delta, covar_delta],
                       [0, 0, 0, 0, 0, 0, covar_delta, self.w[3] + covar_delta]])
-        alpha = 0.00001
-        kappa = 0.0
-        beta = 2.0
+        alpha = 0.0001
+        kappa = 0
+        beta = 2
 
         L = 8.0
         lam = alpha ** 2 * (L + kappa) - L
 
         SQ = sp.sqrtm(np.matrix((L + lam) * P))
+        SQ = np.real(SQ)
 
         pts = [X,
                X + SQ[:, 0],
@@ -162,9 +165,9 @@ class UnscentedKalmanFilter(Localize_Interface):
                 h1 = h1 - diff / 2.0
                 h0 = h0 + diff / 2.0
 
-        z_k = np.array([distances[0], distances[1], h0, h1])
+        z_k = np.array([distances[0], distances[1]])
 
-        X = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        X = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
         X[0] = self.m_x[0]
         X[1] = self.m_x[1]
@@ -172,28 +175,26 @@ class UnscentedKalmanFilter(Localize_Interface):
         X[3] = self.m_x[3]
 
         s = np.matrix(self.m_sigma)
+        s = (np.matrix(s) + np.transpose(np.matrix(s))) / 2
         covar_delta = .0000001
 
         # P_{k-1,k-1}
-        P = np.matrix([[s[0, 0], s[0, 1], s[0, 2], s[0, 3], 0, 0, 0, 0],
-                      [s[1, 0], s[1, 1], s[1, 2], s[1, 3], 0, 0, 0, 0],
-                      [s[2, 0], s[2, 1], s[2, 2], s[2, 3], 0, 0, 0, 0],
-                      [s[3, 0], s[3, 1], s[3, 2], s[3, 3], 0, 0, 0, 0],
-                      [0, 0, 0, 0, self.d_var[0] * distances[0], covar_delta,
-                       0, 0],
-                      [0, 0, 0, 0, covar_delta, self.d_var[1] * distances[1],
-                       0, 0],
-                      [0, 0, 0, 0, 0, 0, self.h_var[0], covar_delta],
-                      [0, 0, 0, 0, 0, 0, covar_delta, self.h_var[1]]])
+        P = np.matrix([[s[0, 0], s[0, 1], s[0, 2], s[0, 3], 0, 0],
+                      [s[1, 0], s[1, 1], s[1, 2], s[1, 3], 0, 0],
+                      [s[2, 0], s[2, 1], s[2, 2], s[2, 3], 0, 0],
+                      [s[3, 0], s[3, 1], s[3, 2], s[3, 3], 0, 0],
+                      [0, 0, 0, 0, self.d_var[0] * distances[0], covar_delta],
+                      [0, 0, 0, 0, covar_delta, self.d_var[1] * distances[1]]])
 
-        alpha = .001
+        alpha = .0001
         kappa = 0
         beta = 2
 
-        L = 8.0
+        L = 6.0
         lam = alpha ** 2 * (L + kappa) - L
 
         SQ = sp.sqrtm(np.matrix((L + lam) * P))
+        SQ = np.real(SQ)
 
         pts = [X,
                X + SQ[:, 0],
@@ -202,49 +203,41 @@ class UnscentedKalmanFilter(Localize_Interface):
                X + SQ[:, 3],
                X + SQ[:, 4],
                X + SQ[:, 5],
-               X + SQ[:, 6],
-               X + SQ[:, 7],
                X - SQ[:, 0],
                X - SQ[:, 1],
                X - SQ[:, 2],
                X - SQ[:, 3],
                X - SQ[:, 4],
-               X - SQ[:, 5],
-               X - SQ[:, 6],
-               X - SQ[:, 7]]
+               X - SQ[:, 5]]
 
         # Update predicted pose vector
         f_pts = []
-        for i in xrange(0, 17):
+        for i in xrange(0, 13):
             p = pts[i]
             d = math.sqrt((p[2] - p[0]) ** 2 + (p[2] - p[0]) ** 2)
             f_pts.append([d + p[4],
-                          d + p[5],
-                          math.atan2(p[3] - p[1], p[2] - p[0]) + p[6],
-                          math.atan2(p[1] - p[3], p[0] - p[2]) + p[7]])
+                          d + p[5]])
 
         # z_k hat
-        z_khat = np.array([0, 0, 0, 0])
-        for i in xrange(1, 17):
+        z_khat = np.array([ 0, 0])
+        for i in xrange(1, 13):
             z_khat = z_khat + np.array(f_pts[i]) * 1.0 / (2.0 * (L + lam))
         z_khat = z_khat + np.array(f_pts[0]) * (lam / (L + lam))
 
-        P_ZkZk = np.matrix([[0, 0, 0, 0],
-                           [0, 0, 0, 0],
-                           [0, 0, 0, 0],
-                           [0, 0, 0, 0]])
+        P_ZkZk = np.matrix([[0, 0],
+                           [0, 0]])
 
         # P_{zk,zk}
-        for i in xrange(1, 17):
+        for i in xrange(1, 13):
             P_ZkZk = P_ZkZk + ((np.transpose(np.matrix(np.array(f_pts[i]) - np.array(z_khat))) * (np.matrix(np.array(f_pts[i]) - np.array(z_khat))))) * 1.0 / (2.0 * (L + lam))
         P_ZkZk = P_ZkZk + ((np.transpose(np.matrix(np.array(f_pts[0]) - np.array(z_khat))) * (np.matrix(np.array(f_pts[0]) - np.array(z_khat))))) * (lam / (L + lam) + (1 - alpha ** 2 + beta))
 
         # P_{xk,zk}
-        P_XkZk = np.matrix([[0, 0, 0, 0],
-                           [0, 0, 0, 0],
-                           [0, 0, 0, 0],
-                           [0, 0, 0, 0]])
-        for i in xrange(1, 17):
+        P_XkZk = np.matrix([[0, 0],
+                           [0, 0],
+                           [0, 0],
+                           [0, 0]])
+        for i in xrange(1, 13):
             P_XkZk = P_XkZk + ((np.transpose(np.matrix(np.array(self.f_pts[i]) - np.array(self.m_x))) * (np.matrix(np.array(f_pts[i]) - np.array(z_khat))))) * 1.0 / (2.0 * (L + lam))
         P_XkZk = P_XkZk + ((np.transpose(np.matrix(np.array(self.f_pts[0]) - np.array(self.m_x))) * (np.matrix(np.array(f_pts[0]) - np.array(z_khat))))) * (lam / (L + lam) + (1 - alpha ** 2 + beta))
 
